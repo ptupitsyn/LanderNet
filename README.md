@@ -14,4 +14,4 @@ Controls:
 - left control to fire rockets
 
 
-![LanderNet screenshot](http://lander-net.googlecode.com/svn/trunk/Screenshot.png)
+![LanderNet screenshot](Screenshot.png?raw=true)
