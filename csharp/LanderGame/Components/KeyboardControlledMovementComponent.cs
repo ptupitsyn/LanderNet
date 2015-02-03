@@ -1,0 +1,34 @@
+﻿using System;
+using System.Windows.Input;
+
+namespace LanderNet.Game.Components
+{
+    public class KeyboardControlledMovementComponent : ITimedComponent
+    {
+        private readonly LinearMovementComponent _movementComponent;
+
+        public KeyboardControlledMovementComponent(LinearMovementComponent movementComponent)
+        {
+            if (movementComponent == null) throw new ArgumentNullException();
+            _movementComponent = movementComponent;
+            AccelerationPerSecond = 1;
+        }
+
+        public double AccelerationPerSecond { get; set; }
+
+        public bool IsAccelerating { get { return Keyboard.IsKeyDown(Key.Up) || Keyboard.IsKeyDown(Key.Down) || Keyboard.IsKeyDown(Key.Left) || Keyboard.IsKeyDown(Key.Right); } }
+
+        #region ITimedComponent Members
+
+        public void UpdateOnTime(double seconds)
+        {
+            var acceleration = AccelerationPerSecond*seconds;
+            if (Keyboard.IsKeyDown(Key.Up)) _movementComponent.YSpeed += acceleration;
+            if (Keyboard.IsKeyDown(Key.Down)) _movementComponent.YSpeed -= acceleration;
+            if (Keyboard.IsKeyDown(Key.Right)) _movementComponent.XSpeed += acceleration;
+            if (Keyboard.IsKeyDown(Key.Left)) _movementComponent.XSpeed -= acceleration;
+        }
+
+        #endregion
+    }
+}

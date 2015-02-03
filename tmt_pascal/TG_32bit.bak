@@ -1,0 +1,582 @@
+{32bit Routines for TPSGRAPH}
+
+ Procedure PSET32 conv arg_stdcall (X,Y,C:DWord); Assembler;
+   Asm
+    { Put Pixel }
+    Mov Eax, Y
+    Mul ScreenSX
+    Add Eax, X
+    Mov Edi, Eax
+    Shl Edi, 2
+    Add Edi, LFBMem
+    Mov Eax, C
+    StosD
+    { End }
+   End;
+
+ Function PGET32 conv arg_stdcall (X,Y:DWord):DWord; Assembler;
+   Asm
+    { Get Pixel }
+    Mov Eax, Y
+    Mul ScreenSX
+    Add Eax, X
+    Mov Esi, Eax
+    Shl Esi, 2
+    Add Esi, LFBMem
+    LodsD
+    { End }
+   End;
+
+ Procedure hLine32(X,Y,X2,C:DWord); Assembler;
+   Asm
+    Mov Eax, Y
+    Mul ScreenSX
+    Shl Eax, 2
+    Mov Edi, X
+    Mov Ecx, Edi
+    Shl Edi, 2
+    Add Edi, LFBMem
+    Add Edi, Eax
+    Mov Eax, C
+    Sub Ecx, X2
+    Neg Ecx
+    ALIGN 4
+    Rep StosD
+   End;
+
+ Procedure vLine32 (X, Y1, Y2, C  :DWORD);Assembler;
+   Asm
+    Mov Edi, LFBMem
+    Mov Eax, Y1
+    Mov Ebx, ScreenSX
+    Mul Ebx
+    Add Eax, X
+    Shl Eax, 2   {***}
+    Add Edi, Eax {EDI=Start Loct}
+    Dec Ebx      {EBX=Dif}
+    Shl Ebx, 2   {***}
+    Mov Eax, C
+    Mov Ecx, Y2
+    Sub Ecx, Y1  {CX=DeltaY}
+    ALIGN 4
+    @Next:
+     StosD
+     Add Edi, Ebx
+    Dec Ecx; Jnz @Next
+   End;
+
+ Procedure FillBox32(X1,Y1,X2,Y2,C:DWord);Assembler;
+   Asm
+    Mov Edi, LFBMem
+    Mov Eax, ScreenSX
+    Mov Ebx, Y1
+    Mul Ebx
+    Add Eax, X1
+    Shl Eax, 2
+    Add Edi, Eax     //Edi=Beg Pos
+    Mov Edx, Y2
+    Sub Edx, Y1          //Edx=SY
+    Inc Edx
+    Mov Eax, C
+    Mov Ecx, X2
+    Sub Ecx, X1
+    Mov Ebx, ScreenSX
+    Sub Ebx, Ecx              //Ebx=Diff
+    Shl Ebx, 2
+    @NextLine:
+     Push Ecx
+     Rep StosD
+     Pop Ecx
+     Add Edi, Ebx
+    Dec Edx; Jnz @NextLine
+   End;
+
+ Procedure tPut32 conv arg_stdcall (X,Y,TransparentColor:DWord;Arr:Pointer);Assembler;  {Transparent PUT}
+    Var IMSX, IMSY :DWord;
+   Asm
+    Cmp Arr, 0
+    Je @ExitSub
+
+    {Check ON-SCREEN POS}
+    Mov Eax, ScreenSY; Mov Ebx, ScreenSX
+    Cmp Y, Eax; Jl @PUT1; Jmp @ExitSub; @PUT1:
+    Cmp X, Ebx; Jl @PUT2; Jmp @ExitSub; @PUT2:
+    {--------}
+    Mov Edi, LFBMem  {Set Destination Loct}
+    {Get Sizes}
+    Mov Esi, Arr
+    LodsD; Mov IMSX, Eax
+    LodsD; Mov IMSY, Eax
+    Add Esi, SizeOfSprite-8
+    {Check ON-SCREEN POS}
+    Mov Eax, IMSY; Neg Eax; Cmp Eax, Y; Jl @PUT3; Jmp @ExitSub; @PUT3:
+    Mov Eax, IMSX; Neg Eax; Cmp Eax, X; Jl @PUT4; Jmp @ExitSub; @PUT4:
+    {VERTICAL Clipping}
+    Mov Eax, Y    {Clipping Bottom}
+    Add Eax, IMSY
+    Cmp Eax, ScreenSY
+    Jl @SkipClipYB
+     Sub Eax, ScreenSY
+     Cmp Eax, IMSY
+     Jl @DoClipYB
+     Jmp @ExitSub
+     @DoClipYB:
+     Sub IMSY, Eax
+    @SkipClipYB:
+    Cmp Y, -1           {Clipping Top}
+    Jg @SkipClipYT
+     Xor Eax, Eax
+     Sub Eax, Y
+     Cmp Eax, IMSY
+     Jl @DoClipYT
+     Jmp @ExitSub
+     @DoClipYT:
+     Sub IMSY, Eax
+     Add Y, Eax
+     Mov Ebx, IMSX
+     Mul Ebx
+     Shl Eax, 2          {<>}
+     Add Esi, Eax
+    @SkipClipYT:
+    {End Clipping}
+
+    {Calculate Destination MemLocation}
+    Mov Eax, Y; Mov Ebx, ScreenSX;
+    Mul Ebx
+    Add Eax, X
+    Shl Eax, 2    {<>}
+    Add Edi, Eax
+
+    Mov Ecx, IMSY {Size Y}
+    Mov Ebx, IMSX {Size X}
+    Mov Edx, ScreenSX
+    Sub Edx, Ebx
+
+    {HORIZ.CLIPPING}
+    Push Edx
+    Xor Eax, Eax
+    {RIGHT}
+    Sub Edx, X
+    Cmp Edx, 0
+    Jge @NoClip1   {IF EDX>=0 THEN JUMP}
+     Mov Eax, Edx; Neg Eax; Sub Ebx, Eax
+    @NoClip1:
+    Pop Edx
+    {LEFT}
+    Cmp X, 0
+    Jge @NoClip2
+     Sub Edi, X; Sub Esi, X      // \
+     Sub Edi, X; Sub Esi, X      //  \
+     Sub Edi, X; Sub Esi, X      //   32 bit!!!
+     Sub Edi, X; Sub Esi, X      //  /
+     Sub Eax, X; Sub Ebx, Eax
+    @NoClip2:
+    {bitshifts}
+    Shl Eax, 2 {<>}
+    Shl Edx, 2 {<>}
+
+    ALIGN 4
+    @PutLn:  {DRAW!!!!!}
+     Push Ecx; Push Eax; Mov Ecx, Ebx
+     ALIGN 4
+     @PutDot:
+      LodsD; Cmp Eax, TransparentColor //Test Al, Al
+      Je @NextDot  {if Al==0}
+       StosD; Sub Edi, 4   {<>}
+      @NextDot: Add Edi, 4 {<>}
+     Dec Ecx; Jnz @PutDot  {Looping is SLOW}
+     Pop Eax; Add Esi, Eax
+     Add Edi, Edx; Add Edi, Eax
+     Pop Ecx
+    Dec Ecx; Jnz @PutLn    {Looping is SLOW}
+
+    @ExitSub:
+
+   End;
+
+ Procedure btPut32 conv arg_stdcall (X,Y:LongInt;Arr:Pointer;BlendMode:Byte);Assembler;  {BlendTransparent PUT}
+    Var
+       IMSX, IMSY :DWord;
+       _Zero      :Int64 = 0;
+       muls2      :Record z1,R,z2,G,z3,B,z4,z5:Byte; End;
+   Asm
+    Cmp Arr, 0
+    Je @ExitSub
+
+    {Check ON-SCREEN POS}
+    Mov Eax, ScreenSY; Mov Ebx, ScreenSX
+    Cmp Y, Eax; Jl @PUT1; Jmp @ExitSub; @PUT1:
+    Cmp X, Ebx; Jl @PUT2; Jmp @ExitSub; @PUT2:
+    {--------}
+    Mov Edi, LFBMem  {Set Destination Loct}
+    {Get Sizes}
+    Mov Esi, Arr
+    LodsD; Mov IMSX, Eax
+    LodsD; Mov IMSY, Eax
+    Add Esi, SizeOfSprite-8
+    {Check ON-SCREEN POS}
+    Mov Eax, IMSY; Neg Eax; Cmp Eax, Y; Jl @PUT3; Jmp @ExitSub; @PUT3:
+    Mov Eax, IMSX; Neg Eax; Cmp Eax, X; Jl @PUT4; Jmp @ExitSub; @PUT4:
+    {VERTICAL Clipping}
+    Mov Eax, Y    {Clipping Bottom}
+    Add Eax, IMSY
+    Cmp Eax, ScreenSY
+    Jl @SkipClipYB
+     Sub Eax, ScreenSY
+     Cmp Eax, IMSY
+     Jl @DoClipYB
+     Jmp @ExitSub
+     @DoClipYB:
+     Sub IMSY, Eax
+    @SkipClipYB:
+    Cmp Y, -1           {Clipping Top}
+    Jg @SkipClipYT
+     Xor Eax, Eax
+     Sub Eax, Y
+     Cmp Eax, IMSY
+     Jl @DoClipYT
+     Jmp @ExitSub
+     @DoClipYT:
+     Sub IMSY, Eax
+     Add Y, Eax
+     Mov Ebx, IMSX
+     Mul Ebx
+     Shl Eax, 2          {<>}
+     Add Esi, Eax
+    @SkipClipYT:
+    {End Clipping}
+
+    {Calculate Destination MemLocation}
+    Mov Eax, Y; Mov Ebx, ScreenSX;
+    Mul Ebx
+    Add Eax, X
+    Shl Eax, 2    {<>}
+    Add Edi, Eax
+
+    Mov Ecx, IMSY {Size Y}
+    Mov Ebx, IMSX {Size X}
+    Mov Edx, ScreenSX
+    Sub Edx, Ebx
+
+    {HORIZ.CLIPPING}
+    Push Edx
+    Xor Eax, Eax
+    {RIGHT}
+    Sub Edx, X
+    Cmp Edx, 0
+    Jge @NoClip1   {IF DX>=0 THEN JUMP}
+     Mov Eax, Edx; Neg Eax; Sub Ebx, Eax
+    @NoClip1:
+    Pop Edx
+    {LEFT}
+    Cmp X, 0
+    Jge @NoClip2
+     Sub Edi, X; Sub Esi, X      // \
+     Sub Edi, X; Sub Esi, X      //  \
+     Sub Edi, X; Sub Esi, X      //   32 bit!!!
+     Sub Edi, X; Sub Esi, X      //  /
+     Sub Eax, X; Sub Ebx, Eax
+    @NoClip2:
+    {bitshifts}
+    Shl Eax, 2 {<>}
+    Shl Edx, 2 {<>}
+    //Shr Ebx, 1
+
+    Cmp MMX_ENABLED, 0
+    Je @ExitSub2       {Only if MMX enabled!}
+    ALIGN 4
+    @PutLn:  {DRAW!!!!!}
+     Push Ecx; Push Eax; Mov Ecx, Ebx
+     ALIGN 4
+     @PutDot:
+       {Do Blending}
+       Cmp BlendMode, 1  {Additive}
+       Je @Additive
+       Cmp BlendMode, 2  {Substractive}
+       Je @Substractive
+       Cmp BlendMode, 3  {HalfAdditive}
+       Je @HalfAdditive
+       Jmp @EndBlend
+       {}
+       @Additive:
+        MovD mm0, [Esi]
+        pAddUSB mm0, [Edi]
+        MovD [Edi], mm0
+       Jmp @EndBlend
+       @Substractive:
+        MovD mm0, [Edi]
+        pSubUSB mm0, [Esi]
+        MovD [Edi], mm0
+       Jmp @EndBlend
+       @HalfAdditive:
+        MovD mm0, [Esi]
+        MovD mm1, [Edi]
+        pAddUSB mm0, mm1
+        pUnpckLBW mm2, mm0
+        pSrLW mm2, 1
+        MovQ muls2, mm2
+        Mov Eax, 0
+        Mov Al, muls2.R
+        Mov Ah, muls2.G
+        Shl Eax, 8
+        Mov Al, muls2.B
+        Mov [Edi], Eax
+       Jmp @EndBlend
+       {--}
+       @EndBlend:
+       Add Esi, 4
+       Add Edi, 4
+     Dec Ecx; Jnz @PutDot  {Looping is SLOW}
+     Pop Eax; Pop Ecx
+     Add Esi, Eax
+     Add Edi, Edx; Add Edi, Eax
+    Dec Ecx; Jnz @PutLn    {Looping is SLOW}
+
+    @ExitSub:
+    Emms
+    @ExitSub2:
+   End;
+
+ Procedure PutRgn32(X,Y,X1,Y1,X2,Y2:DWord; Arr:Pointer);Assembler;
+    Var
+       IMSX,IMSY,XX1,YY1,XX2,YY2,DX1,DX2,SX,SY :DWord;
+   Asm
+    Cmp Arr, 0
+    Je @ExitSub
+    //
+    {Check Need for drawing}
+     Mov Eax, X
+     Cmp Eax, ScreenSX
+     JGE @ExitSub
+
+     Mov Eax, Y
+     Cmp Eax, ScreenSY
+     JGE @ExitSub
+
+     Mov Eax, X
+     Add Eax, X2
+     Sub Eax, X1
+     Cmp Eax, 0
+     Jle @ExitSub
+
+     Mov Eax, Y
+     Add Eax, Y2
+     Sub Eax, Y1
+     Cmp Eax, 0
+     Jle @ExitSub
+    {Check Left Border}
+     Mov Eax, X1
+     Mov XX1, Eax
+     Mov Eax, X
+     Cmp Eax, 0
+     Jg @Next1
+     Sub XX1, Eax
+     Sub X, Eax
+     @Next1:
+    {Check Upper Border}
+     Mov Eax, Y1
+     Mov YY1, Eax
+     Mov Eax, Y
+     Cmp Eax, 0
+     Jg @Next2
+     Sub YY1, Eax
+     Sub Y, Eax
+     @Next2:
+    {Check Right Border}
+     Mov Eax, X2
+     Mov XX2, Eax
+     Add Eax, X
+     Sub Eax, X1
+     Cmp Eax, ScreenSX
+     Jl @Next3
+     Sub Eax, ScreenSX
+     Sub XX2, Eax
+     @Next3:
+    {Check Lower Border}
+     Mov Eax, Y2
+     Mov YY2, Eax
+     Add Eax, Y
+     Sub Eax, Y1
+     Cmp Eax, ScreenSY
+     Jl @Next4
+     Sub Eax, ScreenSY
+     Sub YY2, Eax
+     @Next4:
+    {Get Sizes}
+     Mov Esi, Arr
+     LodsD; Mov IMSX, Eax
+     LodsD; Mov IMSY, Eax
+     Mov Eax, XX2; Sub Eax, XX1; Mov SX, Eax
+     Mov Eax, YY2; Sub Eax, YY1; Mov SY, Eax
+    {Calc MemLocs}
+     Mov Edi, LFBMem
+     Mov Eax, Y
+     Mul ScreenSX
+     Add Eax, X
+     Shl Eax, 2 {<>}
+     Add Edi, Eax   {Dest Starting loct}
+     Mov Eax, YY1
+     Mul IMSX
+     Add Eax, XX1
+     Shl Eax, 2 {<>}
+     Add Esi, SizeOfSprite-8
+     Add Esi, Eax    {Src Starting Loct}
+    {Calc Difs}
+     Mov Eax, IMSX; Sub Eax, SX; Mov DX1, Eax    {Src}
+     Mov Eax, ScreenSX; Sub Eax, SX; Mov DX2, Eax{Dest}
+    {DRAW!!!!!}
+     Mov Eax, SX
+     Mov Edx, SY
+
+     Shl DX1, 2 {<>}
+     Shl DX2, 2 {<>}
+
+     Cmp MMX_ENABLED, 0
+     Jne @DoMMX
+
+     //ALIGN 4
+     @NextLine:
+      Mov Ecx, Eax
+      ALIGN 4
+      Rep MovsD
+      Add Esi, DX1
+      Add Edi, DX2
+     Dec Edx; Jnz @NextLine
+     Jmp @ExitSub
+
+     @DoMMX:
+     {DRAW!!!!!}
+     Mov Eax, SX
+     Shr Eax, 1
+     Mov Ecx, Eax
+     Shl Eax, 1
+     Neg Eax
+     Add Eax, SX
+     Mov Ebx, Eax
+     Mov Eax, Ecx
+     Mov Edx, SY
+     @NextLineMMX:
+      Mov Ecx, Eax
+      @NextMMXP:
+       //ALIGN 4
+       MovQ mm0, [esi]
+       MovQ [edi], mm0
+       Add Esi, 8
+       Add Edi, 8
+      Dec Ecx; Jg @NextMMXP
+      Mov Ecx, Ebx
+      Rep MovsD
+      Add Esi, DX1
+      Add Edi, DX2
+     Dec Edx; Jnz @NextLineMMX
+     Emms
+
+    {Exit Sub}
+    @ExitSub:
+    //
+   End;(**************)
+
+ Procedure PutChar32(X,Y,C,S:DWord; Symbol:Char);Assembler;
+    Var
+       DX1: DWord;
+   Asm
+    Mov Esi, pFont
+    Movzx Eax, Symbol
+    Shl Eax, 4
+    Add Esi, Eax {Char bitmap}
+
+    Mov Edi, LFBMem
+    Mov Eax, Y
+    Mul ScreenSX
+    Add Eax, X
+    Shl Eax, 2{<>}
+    Add Edi, Eax
+
+    Mov Eax, ScreenSX
+    Sub Eax, 8
+    Shl Eax, 2{<>}
+    Mov DX1, Eax
+
+    Xor Ecx, Ecx
+    Xor Eax, Eax
+    Mov Cl, 16
+
+    @NextTex:
+     Mov Ebx, 128
+     LodsB
+     Mov Bh, Al
+     Mov Ch, 8
+     ALIGN 4
+     @NextDot:
+      Mov Dl, Bh
+      And Dl, Bl
+      Cmp Dl, 0
+      Je @Skip
+      Mov Eax, C
+      StosD
+      Sub Edi, 4
+      @Skip:
+      Add Edi, 4
+      Shr Bl, 1
+     Dec Ch; Jnz @NextDot
+     Add Edi, DX1
+    Dec Cl; Jnz @NextTex
+    {}
+   End;
+
+ Procedure bTransitLayer32(pSpr:Pointer);Assembler;
+    Var
+       Count,Src,Dest               :DWord;
+   Asm
+    Cmp USE_BANKED, 0
+    Jne @ExitSub
+
+    Mov Esi, pSpr
+    LodsD
+    Mov Ebx, Eax
+    LodsD
+    Mul Ebx
+    Mov Ecx, Eax {Pixel Count}
+    Mov Edi, LFBMem
+    Mov Esi, pSpr {pBuf}
+    Add Esi, SizeOfSprite
+    Mov Src, Esi
+    Mov Dest, Edi
+    Mov Count, Ecx
+    //Shr Count, 1
+
+    Cmp MMX_ENABLED, 0
+    Je @ExitSub
+
+    //Mov Eax, $FFFFFFFF; Mov Ecx, 800*600; Rep StosD
+
+    Mov Edx, 40
+    @NextTime:
+     Mov Ecx, Count
+     Mov Esi, Src
+     Mov Edi, Dest
+     @NextPix:
+      MovD mm0, [Esi]
+      MovD mm1, [Edi]
+      pAddUSB mm0, mm1
+
+        {pUnpckLBW mm2, mm0
+        pUnpckLBW mm3, mm1
+        pADDUSB mm2, mm3
+        pSrLW mm2, 1
+        PackSsWB mm0, mm2
+        {pSrLW mm2, 1
+        pSrLW mm3, 1
+        PackSsWB mm0, mm2
+        PackSsWB mm1, mm3
+        pADDUSB mm0, mm1{}
+
+      MovD [Edi], mm0
+      Add Edi, 4
+      Add Esi, 4
+     Dec Ecx; Jnz @NextPix
+    Dec Edx; Jnz @NextTime
+    Emms
+
+    @ExitSub:
+   End;

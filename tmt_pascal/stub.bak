@@ -1,0 +1,6 @@
+program stub;
+
+uses TPSGRAPH;
+
+begin
+end.

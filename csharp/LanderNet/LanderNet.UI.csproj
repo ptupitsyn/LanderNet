@@ -1,0 +1,886 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{1876E914-DA08-4AD9-9C1E-3A6ABEB82D69}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>LanderNet.UI</RootNamespace>
+    <AssemblyName>LanderNet</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <WarningLevel>4</WarningLevel>
+    <TargetFrameworkProfile>Client</TargetFrameworkProfile>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>x86</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>x86</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>ship_icon.ico</ApplicationIcon>
+  </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject>LanderNet.UI.App</StartupObject>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="SlimDX">
+      <HintPath>..\packages\SlimDX.4.0.13.43\lib\NET40\SlimDX.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Xaml">
+      <RequiredTargetFramework>4.0</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="WindowsBase" />
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
+  </ItemGroup>
+  <ItemGroup>
+    <ApplicationDefinition Include="App.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </ApplicationDefinition>
+    <Compile Include="Components\ZindexComponent.cs" />
+    <Compile Include="MainView\DevInfoViewModel.cs" />
+    <Compile Include="GameObjects\Debris.cs" />
+    <Compile Include="GameObjects\Explosion.cs" />
+    <Compile Include="GameObjects\GameObjectExtensions.cs" />
+    <Compile Include="MainView\GameViewModel.cs" />
+    <Compile Include="Hud\HeadUpDisplay.xaml.cs">
+      <DependentUpon>HeadUpDisplay.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Hud\HeadUpDisplayViewModel.cs" />
+    <Compile Include="MainView\LanderGamePresenter.cs" />
+    <Compile Include="MainView\StarBackground.cs" />
+    <Compile Include="Options\OptionsControl.xaml.cs">
+      <DependentUpon>OptionsControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Options\OptionsViewModel.cs" />
+    <Compile Include="Util\BitmapUtils.cs" />
+    <Compile Include="Util\DelegateCommand.cs" />
+    <Compile Include="Util\NotifierBase.cs" />
+    <Compile Include="Util\RandomHelper.cs" />
+    <Compile Include="Util\SoundHelper.cs" />
+    <Page Include="Hud\HeadUpDisplay.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="MainView\MainWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Compile Include="App.xaml.cs">
+      <DependentUpon>App.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Components\AnimatedSpriteComponent.cs" />
+    <Compile Include="MainView\MainWindow.xaml.cs">
+      <DependentUpon>MainWindow.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Page Include="Options\OptionsControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Resources\Common.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Properties\AssemblyInfo.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <None Include="App.config" />
+    <None Include="packages.config" />
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <AppDesigner Include="Properties\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\LanderGame\LanderNet.Game.csproj">
+      <Project>{2DDE8B9F-38F8-4B3C-A896-08D0B796451A}</Project>
+      <Name>LanderNet.Game</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TpsGraphNet\TpsGraphNet.csproj">
+      <Project>{0E93325B-B2B1-4F2F-93F9-DC4B7000DB93}</Project>
+      <Name>TpsGraphNet</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="..\..\resources\Lander_tdl_latest\C0000.bmp">
+      <Link>Resources\Sprites\C0000.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\C0006.bmp">
+      <Link>Resources\Sprites\C0006.bmp</Link>
+    </Resource>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="..\..\resources\Lander_tdl_latest\C0012.bmp">
+      <Link>Resources\Sprites\C0012.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\C0018.bmp">
+      <Link>Resources\Sprites\C0018.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\C0024.bmp">
+      <Link>Resources\Sprites\C0024.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\C0030.bmp">
+      <Link>Resources\Sprites\C0030.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\C0036.bmp">
+      <Link>Resources\Sprites\C0036.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\C0042.bmp">
+      <Link>Resources\Sprites\C0042.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\C0048.bmp">
+      <Link>Resources\Sprites\C0048.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\C0054.bmp">
+      <Link>Resources\Sprites\C0054.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\C0060.bmp">
+      <Link>Resources\Sprites\C0060.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\C0066.bmp">
+      <Link>Resources\Sprites\C0066.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\C0072.bmp">
+      <Link>Resources\Sprites\C0072.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\C0078.bmp">
+      <Link>Resources\Sprites\C0078.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\C0084.bmp">
+      <Link>Resources\Sprites\C0084.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\C0090.bmp">
+      <Link>Resources\Sprites\C0090.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\C0096.bmp">
+      <Link>Resources\Sprites\C0096.bmp</Link>
+    </Resource>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="..\..\resources\Lander_tdl_latest\B0000.bmp">
+      <Link>Resources\Sprites\B0000.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\explos.wav">
+      <Link>Resources\Sounds\explos.wav</Link>
+    </Resource>
+    <Resource Include="ship_icon.ico" />
+    <Resource Include="..\..\resources\Lander_tdl_latest\F0000.bmp">
+      <Link>Resources\Sprites\F0000.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\F0010.bmp">
+      <Link>Resources\Sprites\F0010.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\F0020.bmp">
+      <Link>Resources\Sprites\F0020.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\F0030.bmp">
+      <Link>Resources\Sprites\F0030.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\F0040.bmp">
+      <Link>Resources\Sprites\F0040.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\F0050.bmp">
+      <Link>Resources\Sprites\F0050.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\F0060.bmp">
+      <Link>Resources\Sprites\F0060.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\F0070.bmp">
+      <Link>Resources\Sprites\F0070.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\F0080.bmp">
+      <Link>Resources\Sprites\F0080.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\F0090.bmp">
+      <Link>Resources\Sprites\F0090.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\F0100.bmp">
+      <Link>Resources\Sprites\F0100.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\flame.wav">
+      <Link>Resources\Sounds\flame.wav</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\MachnGun.wav">
+      <Link>Resources\Sounds\MachnGun.wav</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\R0000.bmp">
+      <Link>Resources\Sprites\R0000.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\R0005.bmp">
+      <Link>Resources\Sprites\R0005.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\R0010.bmp">
+      <Link>Resources\Sprites\R0010.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\R0015.bmp">
+      <Link>Resources\Sprites\R0015.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\R0020.bmp">
+      <Link>Resources\Sprites\R0020.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\R0025.bmp">
+      <Link>Resources\Sprites\R0025.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\R0030.bmp">
+      <Link>Resources\Sprites\R0030.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\R0035.bmp">
+      <Link>Resources\Sprites\R0035.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\R0040.bmp">
+      <Link>Resources\Sprites\R0040.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\R0045.bmp">
+      <Link>Resources\Sprites\R0045.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\R0050.bmp">
+      <Link>Resources\Sprites\R0050.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\R0055.bmp">
+      <Link>Resources\Sprites\R0055.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\R0060.bmp">
+      <Link>Resources\Sprites\R0060.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\R0065.bmp">
+      <Link>Resources\Sprites\R0065.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\R0070.bmp">
+      <Link>Resources\Sprites\R0070.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\R0075.bmp">
+      <Link>Resources\Sprites\R0075.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\R0080.bmp">
+      <Link>Resources\Sprites\R0080.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\R0085.bmp">
+      <Link>Resources\Sprites\R0085.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\R0090.bmp">
+      <Link>Resources\Sprites\R0090.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\R0095.bmp">
+      <Link>Resources\Sprites\R0095.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\R0100.bmp">
+      <Link>Resources\Sprites\R0100.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\Rocket.wav">
+      <Link>Resources\Sounds\Rocket.wav</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\S0002.bmp">
+      <Link>Resources\Sprites\S0002.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\S0004.bmp">
+      <Link>Resources\Sprites\S0004.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\S0006.bmp">
+      <Link>Resources\Sprites\S0006.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\S0008.bmp">
+      <Link>Resources\Sprites\S0008.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\S0010.bmp">
+      <Link>Resources\Sprites\S0010.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\S0012.bmp">
+      <Link>Resources\Sprites\S0012.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\S0014.bmp">
+      <Link>Resources\Sprites\S0014.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\S0016.bmp">
+      <Link>Resources\Sprites\S0016.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\S0018.bmp">
+      <Link>Resources\Sprites\S0018.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\S0020.bmp">
+      <Link>Resources\Sprites\S0020.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\S0022.bmp">
+      <Link>Resources\Sprites\S0022.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\S0024.bmp">
+      <Link>Resources\Sprites\S0024.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\S0026.bmp">
+      <Link>Resources\Sprites\S0026.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\S0028.bmp">
+      <Link>Resources\Sprites\S0028.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\S0030.bmp">
+      <Link>Resources\Sprites\S0030.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\S0032.bmp">
+      <Link>Resources\Sprites\S0032.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\S0034.bmp">
+      <Link>Resources\Sprites\S0034.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\S0036.bmp">
+      <Link>Resources\Sprites\S0036.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\S0038.bmp">
+      <Link>Resources\Sprites\S0038.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\S0040.bmp">
+      <Link>Resources\Sprites\S0040.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\S0042.bmp">
+      <Link>Resources\Sprites\S0042.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\S0044.bmp">
+      <Link>Resources\Sprites\S0044.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\S0046.bmp">
+      <Link>Resources\Sprites\S0046.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\S0048.bmp">
+      <Link>Resources\Sprites\S0048.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\S0050.bmp">
+      <Link>Resources\Sprites\S0050.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\S0052.bmp">
+      <Link>Resources\Sprites\S0052.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\S0054.bmp">
+      <Link>Resources\Sprites\S0054.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\S0056.bmp">
+      <Link>Resources\Sprites\S0056.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\S0058.bmp">
+      <Link>Resources\Sprites\S0058.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\S0060.bmp">
+      <Link>Resources\Sprites\S0060.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\S0062.bmp">
+      <Link>Resources\Sprites\S0062.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\S0064.bmp">
+      <Link>Resources\Sprites\S0064.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\S0066.bmp">
+      <Link>Resources\Sprites\S0066.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\S0068.bmp">
+      <Link>Resources\Sprites\S0068.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\S0070.bmp">
+      <Link>Resources\Sprites\S0070.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\S0072.bmp">
+      <Link>Resources\Sprites\S0072.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\S0074.bmp">
+      <Link>Resources\Sprites\S0074.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\S0076.bmp">
+      <Link>Resources\Sprites\S0076.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\S0078.bmp">
+      <Link>Resources\Sprites\S0078.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\S0080.bmp">
+      <Link>Resources\Sprites\S0080.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\S0082.bmp">
+      <Link>Resources\Sprites\S0082.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\S0084.bmp">
+      <Link>Resources\Sprites\S0084.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\S0086.bmp">
+      <Link>Resources\Sprites\S0086.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\S0088.bmp">
+      <Link>Resources\Sprites\S0088.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\S0090.bmp">
+      <Link>Resources\Sprites\S0090.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\S0092.bmp">
+      <Link>Resources\Sprites\S0092.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\S0094.bmp">
+      <Link>Resources\Sprites\S0094.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\S0096.bmp">
+      <Link>Resources\Sprites\S0096.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\S0098.bmp">
+      <Link>Resources\Sprites\S0098.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\S0100.bmp">
+      <Link>Resources\Sprites\S0100.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\X0010.bmp">
+      <Link>Resources\Sprites\X0010.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\X0020.bmp">
+      <Link>Resources\Sprites\X0020.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\X0030.bmp">
+      <Link>Resources\Sprites\X0030.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\X0040.bmp">
+      <Link>Resources\Sprites\X0040.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\X0050.bmp">
+      <Link>Resources\Sprites\X0050.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\X0060.bmp">
+      <Link>Resources\Sprites\X0060.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\X0070.bmp">
+      <Link>Resources\Sprites\X0070.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\X0080.bmp">
+      <Link>Resources\Sprites\X0080.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\X0090.bmp">
+      <Link>Resources\Sprites\X0090.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\X0100.bmp">
+      <Link>Resources\Sprites\X0100.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\Z10000.bmp">
+      <Link>Resources\Sprites\Z10000.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\Z10005.bmp">
+      <Link>Resources\Sprites\Z10005.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\Z10010.bmp">
+      <Link>Resources\Sprites\Z10010.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\Z10015.bmp">
+      <Link>Resources\Sprites\Z10015.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\Z10020.bmp">
+      <Link>Resources\Sprites\Z10020.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\Z10025.bmp">
+      <Link>Resources\Sprites\Z10025.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\Z10030.bmp">
+      <Link>Resources\Sprites\Z10030.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\Z10035.bmp">
+      <Link>Resources\Sprites\Z10035.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\Z10040.bmp">
+      <Link>Resources\Sprites\Z10040.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\Z10045.bmp">
+      <Link>Resources\Sprites\Z10045.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\Z10050.bmp">
+      <Link>Resources\Sprites\Z10050.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\Z10055.bmp">
+      <Link>Resources\Sprites\Z10055.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\Z10060.bmp">
+      <Link>Resources\Sprites\Z10060.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\Z10065.bmp">
+      <Link>Resources\Sprites\Z10065.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\Z10070.bmp">
+      <Link>Resources\Sprites\Z10070.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\Z10075.bmp">
+      <Link>Resources\Sprites\Z10075.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\Z10080.bmp">
+      <Link>Resources\Sprites\Z10080.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\Z10085.bmp">
+      <Link>Resources\Sprites\Z10085.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\Z10090.bmp">
+      <Link>Resources\Sprites\Z10090.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\Z10095.bmp">
+      <Link>Resources\Sprites\Z10095.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\Z10100.bmp">
+      <Link>Resources\Sprites\Z10100.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\Z20000.bmp">
+      <Link>Resources\Sprites\Z20000.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\Z20005.bmp">
+      <Link>Resources\Sprites\Z20005.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\Z20010.bmp">
+      <Link>Resources\Sprites\Z20010.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\Z20015.bmp">
+      <Link>Resources\Sprites\Z20015.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\Z20020.bmp">
+      <Link>Resources\Sprites\Z20020.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\Z20025.bmp">
+      <Link>Resources\Sprites\Z20025.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\Z20030.bmp">
+      <Link>Resources\Sprites\Z20030.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\Z20035.bmp">
+      <Link>Resources\Sprites\Z20035.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\Z20040.bmp">
+      <Link>Resources\Sprites\Z20040.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\Z20045.bmp">
+      <Link>Resources\Sprites\Z20045.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\Z20050.bmp">
+      <Link>Resources\Sprites\Z20050.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\Z20055.bmp">
+      <Link>Resources\Sprites\Z20055.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\Z20060.bmp">
+      <Link>Resources\Sprites\Z20060.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\Z20065.bmp">
+      <Link>Resources\Sprites\Z20065.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\Z20070.bmp">
+      <Link>Resources\Sprites\Z20070.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\Z20075.bmp">
+      <Link>Resources\Sprites\Z20075.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\Z20080.bmp">
+      <Link>Resources\Sprites\Z20080.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\Z20085.bmp">
+      <Link>Resources\Sprites\Z20085.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\Z20090.bmp">
+      <Link>Resources\Sprites\Z20090.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\Z20095.bmp">
+      <Link>Resources\Sprites\Z20095.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\Z20100.bmp">
+      <Link>Resources\Sprites\Z20100.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\Z30000.bmp">
+      <Link>Resources\Sprites\Z30000.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\Z30005.bmp">
+      <Link>Resources\Sprites\Z30005.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\Z30010.bmp">
+      <Link>Resources\Sprites\Z30010.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\Z30015.bmp">
+      <Link>Resources\Sprites\Z30015.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\Z30020.bmp">
+      <Link>Resources\Sprites\Z30020.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\Z30025.bmp">
+      <Link>Resources\Sprites\Z30025.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\Z30030.bmp">
+      <Link>Resources\Sprites\Z30030.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\Z30035.bmp">
+      <Link>Resources\Sprites\Z30035.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\Z30040.bmp">
+      <Link>Resources\Sprites\Z30040.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\Z30045.bmp">
+      <Link>Resources\Sprites\Z30045.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\Z30050.bmp">
+      <Link>Resources\Sprites\Z30050.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\Z30055.bmp">
+      <Link>Resources\Sprites\Z30055.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\Z30060.bmp">
+      <Link>Resources\Sprites\Z30060.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\Z30065.bmp">
+      <Link>Resources\Sprites\Z30065.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\Z30070.bmp">
+      <Link>Resources\Sprites\Z30070.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\Z30075.bmp">
+      <Link>Resources\Sprites\Z30075.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\Z30080.bmp">
+      <Link>Resources\Sprites\Z30080.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\Z30085.bmp">
+      <Link>Resources\Sprites\Z30085.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\Z30090.bmp">
+      <Link>Resources\Sprites\Z30090.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\Z30095.bmp">
+      <Link>Resources\Sprites\Z30095.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\Z30100.bmp">
+      <Link>Resources\Sprites\Z30100.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\Z40000.bmp">
+      <Link>Resources\Sprites\Z40000.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\Z40005.bmp">
+      <Link>Resources\Sprites\Z40005.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\Z40010.bmp">
+      <Link>Resources\Sprites\Z40010.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\Z40015.bmp">
+      <Link>Resources\Sprites\Z40015.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\Z40020.bmp">
+      <Link>Resources\Sprites\Z40020.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\Z40025.bmp">
+      <Link>Resources\Sprites\Z40025.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\Z40030.bmp">
+      <Link>Resources\Sprites\Z40030.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\Z40035.bmp">
+      <Link>Resources\Sprites\Z40035.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\Z40040.bmp">
+      <Link>Resources\Sprites\Z40040.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\Z40045.bmp">
+      <Link>Resources\Sprites\Z40045.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\Z40050.bmp">
+      <Link>Resources\Sprites\Z40050.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\Z40055.bmp">
+      <Link>Resources\Sprites\Z40055.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\Z40060.bmp">
+      <Link>Resources\Sprites\Z40060.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\Z40065.bmp">
+      <Link>Resources\Sprites\Z40065.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\Z40070.bmp">
+      <Link>Resources\Sprites\Z40070.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\Z40075.bmp">
+      <Link>Resources\Sprites\Z40075.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\Z40080.bmp">
+      <Link>Resources\Sprites\Z40080.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\Z40085.bmp">
+      <Link>Resources\Sprites\Z40085.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\Z40090.bmp">
+      <Link>Resources\Sprites\Z40090.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\Z40095.bmp">
+      <Link>Resources\Sprites\Z40095.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\Z40100.bmp">
+      <Link>Resources\Sprites\Z40100.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\Z50000.bmp">
+      <Link>Resources\Sprites\Z50000.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\Z50005.bmp">
+      <Link>Resources\Sprites\Z50005.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\Z50010.bmp">
+      <Link>Resources\Sprites\Z50010.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\Z50015.bmp">
+      <Link>Resources\Sprites\Z50015.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\Z50020.bmp">
+      <Link>Resources\Sprites\Z50020.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\Z50025.bmp">
+      <Link>Resources\Sprites\Z50025.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\Z50030.bmp">
+      <Link>Resources\Sprites\Z50030.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\Z50035.bmp">
+      <Link>Resources\Sprites\Z50035.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\Z50040.bmp">
+      <Link>Resources\Sprites\Z50040.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\Z50045.bmp">
+      <Link>Resources\Sprites\Z50045.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\Z50050.bmp">
+      <Link>Resources\Sprites\Z50050.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\Z50055.bmp">
+      <Link>Resources\Sprites\Z50055.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\Z50060.bmp">
+      <Link>Resources\Sprites\Z50060.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\Z50065.bmp">
+      <Link>Resources\Sprites\Z50065.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\Z50070.bmp">
+      <Link>Resources\Sprites\Z50070.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\Z50075.bmp">
+      <Link>Resources\Sprites\Z50075.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\Z50080.bmp">
+      <Link>Resources\Sprites\Z50080.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\Z50085.bmp">
+      <Link>Resources\Sprites\Z50085.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\Z50090.bmp">
+      <Link>Resources\Sprites\Z50090.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\Z50095.bmp">
+      <Link>Resources\Sprites\Z50095.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\Z50100.bmp">
+      <Link>Resources\Sprites\Z50100.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\Z60000.bmp">
+      <Link>Resources\Sprites\Z60000.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\Z60005.bmp">
+      <Link>Resources\Sprites\Z60005.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\Z60010.bmp">
+      <Link>Resources\Sprites\Z60010.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\Z60015.bmp">
+      <Link>Resources\Sprites\Z60015.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\Z60020.bmp">
+      <Link>Resources\Sprites\Z60020.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\Z60025.bmp">
+      <Link>Resources\Sprites\Z60025.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\Z60030.bmp">
+      <Link>Resources\Sprites\Z60030.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\Z60035.bmp">
+      <Link>Resources\Sprites\Z60035.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\Z60040.bmp">
+      <Link>Resources\Sprites\Z60040.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\Z60045.bmp">
+      <Link>Resources\Sprites\Z60045.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\Z60050.bmp">
+      <Link>Resources\Sprites\Z60050.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\Z60055.bmp">
+      <Link>Resources\Sprites\Z60055.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\Z60060.bmp">
+      <Link>Resources\Sprites\Z60060.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\Z60065.bmp">
+      <Link>Resources\Sprites\Z60065.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\Z60070.bmp">
+      <Link>Resources\Sprites\Z60070.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\Z60075.bmp">
+      <Link>Resources\Sprites\Z60075.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\Z60080.bmp">
+      <Link>Resources\Sprites\Z60080.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\Z60085.bmp">
+      <Link>Resources\Sprites\Z60085.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\Z60090.bmp">
+      <Link>Resources\Sprites\Z60090.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\Z60095.bmp">
+      <Link>Resources\Sprites\Z60095.bmp</Link>
+    </Resource>
+    <Resource Include="..\..\resources\Lander_tdl_latest\Z60100.bmp">
+      <Link>Resources\Sprites\Z60100.bmp</Link>
+    </Resource>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

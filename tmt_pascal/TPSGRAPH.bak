@@ -1,0 +1,729 @@
+Library TpsGraph;
+
+{$I TPSGRAPH.Inc} (* INTERFACE Part of module *)
+
+Implementation
+
+
+ Type
+     ModeType = Packed Record
+      Mode,W,H,Bpp     :DWord;
+     End;
+
+
+ {Included routines}
+
+ {$I TG_32bit.pas}
+ {$I TG_16bit.pas}
+ {$I TG_8bit.pas}
+
+
+{@@@@@@@@@@@@@ Common Graphics Procs @@@@@@@@@@@@@@@@@@}
+
+ Procedure _CLS conv arg_stdcall (C:DWORD); Assembler;
+   Asm
+    Mov Edi, LFBMem
+    Mov Eax, ScreenSY
+    Mul ScreenSX
+    Mov Ecx, ScreenBpp
+    Shr Ecx, 1
+    Shl Eax, Ecx
+    Mov Ecx, Eax
+    Shr Ecx, 2
+    Mov Eax, C
+
+    Cmp MMX_ENABLED, 1
+    Je @DoMMX
+
+    ALIGN 4
+    Rep StosD
+    Jmp @ExitSub
+
+    @DoMMX:
+    Shr Ecx, 1
+    MovD mm0, Eax
+    MovD mm1, Eax
+    PUnpckLDQ mm0, mm1
+    ALIGN 4
+    @NextMMX:
+     MovQ [edi], mm0
+     Add Edi, 8
+    Dec Ecx; jnz @NextMMX
+    Emms
+
+    @ExitSub:
+   End;
+
+ Function RGBToColor(R,G,B:Byte):Dword;Assembler;
+   Asm
+    Movzx Eax, R
+    Movzx Ebx, G
+    Movzx Ecx, B
+    Cmp ScreenBpp, 1
+    Je @1Bpp
+    Cmp ScreenBpp, 2
+    Je @2Bpp
+    //4 bpp
+    @4Bpp:
+    Shl Eax, 16
+    Shl Ebx, 8
+    Or Eax, Ebx
+    Or Eax, Ecx
+    Jmp @ExitSub
+    //2 bpp
+    @2Bpp:
+    Shr Eax, 3; Shl Eax, 11
+    Shr Ebx, 2; Shl Ebx, 5
+    Shr Ecx, 3
+    Or Eax, Ebx
+    Or Eax, Ecx
+    Mov Ebx, Eax
+    Shl Eax, 16
+    Mov Ax, Bx
+    Jmp @ExitSub
+    //1 bpp
+    @1Bpp:
+    Shr Al, 5; Shl Al, 5
+    Shr Bl, 5; Shl Bl, 2
+    Shr Cl, 6
+    Or Al, Bl
+    Or Al, Cl
+    Mov Ah, Al
+    Mov Ebx, Eax
+    Shl Eax, 16
+    Mov Ax, Bx
+    {}
+    //Exit
+    @ExitSub:
+   End;
+
+ Procedure ColorToRGB(Color:DWord; Var R,G,B:Byte);
+   Var
+      rr,gg,bb        :Byte;
+  Begin
+/*   Case Mode.Bpp Of
+    1: Asm
+        Mov Eax, Color
+        {R}
+        Mov Bl, Al
+        Shr Bl, 5
+        Shl Bl, 5
+        Mov rr, bl
+        {G}
+        Mov Bl, Al
+        Shr Bl, 3
+        Shl Bl, 5
+        Mov gg, bl
+        {B}
+        Mov Bl, Al
+        Shl Bl, 5
+        Mov bb, bl
+       End;
+    2: Asm
+        Mov Eax, Color
+        {R}
+        Mov Bx, Ax
+        Shr Bx, 11
+        Shl Bx, 3
+        Mov rr, bl
+        {G}
+        Mov Bx, Ax
+        Shr Bx, 5
+        Shl Bx, 2
+        Mov gg, bl
+        {B}
+        Mov Bx, Ax
+        Shl Bx, 3
+        Mov bb, bl
+       End;
+    4:*/ Asm
+        Mov Eax, Color
+        {B}
+        Mov bb, Al
+        {G}
+        Mov gg, Ah
+        {R}
+        Shr Eax, 16
+        Mov rr, Al
+       End;
+//   End;
+   R:=RR; G:=GG; B:=BB;
+  End;
+
+ Procedure _Box(X1,Y1,X2,Y2,C:DWord);
+  Begin
+   hLine (X1,Y1,X2,C);
+   hLine (X1,Y2,X2+1,C);
+   vLine (X1,Y1,Y2,C);
+   vLine (X2,Y1,Y2,C);
+  End;
+
+
+ Procedure _vGradient(X1,Y1,X2,Y2,C1,C2:DWord);
+   Var
+      R1,G1,B1,R2,G2,B2          :Byte;
+      RR,GG,BB                   :Real;
+      DR,DG,DB                   :Real;
+      R,G,B                      :Byte;
+      H,I                        :DWord;
+  Begin
+   ColorToRGB(C1,R1,G1,B1);
+   ColorToRGB(C2,R2,G2,B2);
+   H:=Y2-Y1;
+   DR:=(R2-R1)/H;
+   DG:=(G2-G1)/H;
+   DB:=(B2-B1)/H;
+   RR:=R1;
+   GG:=G1;
+   BB:=B1;
+   For I:=Y1 To Y2 Do Begin
+    R:=Trunc(RR);
+    G:=Trunc(GG);
+    B:=Trunc(BB);
+    hLine(X1,I,X2,RGB2Color(R,G,B));
+    RR:=RR+DR;
+    GG:=GG+DG;
+    BB:=BB+DB;
+   End;
+  End;
+
+ Procedure _hGradient(X1,Y1,X2,Y2,C1,C2:DWord);
+   Var
+      R1,G1,B1,R2,G2,B2          :Byte;
+      RR,GG,BB                   :Real;
+      DR,DG,DB                   :Real;
+      R,G,B                      :Byte;
+      H,I                        :DWord;
+  Begin
+   ColorToRGB(C1,R1,G1,B1);
+   ColorToRGB(C2,R2,G2,B2);
+   H:=X2-X1;
+   DR:=(R2-R1)/H;
+   DG:=(G2-G1)/H;
+   DB:=(B2-B1)/H;
+   RR:=R1;
+   GG:=G1;
+   BB:=B1;
+   For I:=X1 To X2 Do Begin
+    R:=Trunc(RR);
+    G:=Trunc(GG);
+    B:=Trunc(BB);
+    vLine(I,Y1,Y2,RGB2Color(R,G,B));
+    RR:=RR+DR;
+    GG:=GG+DG;
+    BB:=BB+DB;
+   End;
+  End;
+
+ Procedure _Circle(CX,CY,R,C:DWord);
+   Var X,Y     :Integer;
+       Ugl, Uch   :Real;
+  Begin
+   Ugl:=0;
+   UCH:=1/R;
+   Repeat
+    X:=Round(R*Cos(Ugl));
+    Y:=Round(R*Sin(Ugl));
+    PSET(CX+X,CY+Y,C);
+    PSET(CX-X,CY-Y,C);
+    PSET(CX+X,CY-Y,C);
+    PSET(CX-X,CY+Y,C);
+    Ugl:=Ugl+UCH;
+   Until Ugl>Pi/2;
+  End;
+
+ Procedure _FillCircle(CX,CY,R,C:DWord);
+   Var X,Y,CC    :Integer;
+       Ugl, Uch   :Real;
+  Begin
+   Ugl:=0;
+   CC:=Round(2*Pi*R);
+   UCH:=(Pi*2)/CC;
+   Repeat
+    X:=Round(R*Cos(Ugl));
+    Y:=Round(R*Sin(Ugl));
+    hLine(CX-X,CY+Y,CX+X,C);
+    hLine(CX-X,CY-Y,CX+X,C);
+    Ugl:=Ugl+UCH;
+   Until Ugl>(Pi/2);
+  End;
+
+ Procedure DrawLayer(pBuf:Pointer);Assembler;
+   Var
+      NumBnk,CurBnk,Ost,TotalMem              :DWord;
+   Asm
+    Cmp pBuf, 0
+    Je @ExitSub
+
+    Cmp USE_BANKED, 0
+    Jne @DrawBanked
+
+    Mov Esi, pBuf
+    Mov Ecx, Esi
+    LodsD
+    Mov Ebx, Eax
+    LodsD
+    Mul Ebx
+    Mov Edx, Eax
+    LodsD {Bpp}
+    Mul Edx
+    Mov Edi, LFBMem
+    Mov Esi, Ecx {pBuf}
+    Add Esi, SizeOfSprite
+    Mov Ecx, Eax {Count}
+
+    Cmp MMX_ENABLED, 1
+    Je @DoMMX
+
+    Shr Ecx, 2
+    ALIGN 4
+    Rep MovsD{}
+    Jmp @ExitSub
+
+    @DoMMX:
+    Shr Ecx, 3
+    ALIGN 4
+    @Next:
+     MovQ mm0, [Esi]
+     MovQ [Edi], mm0
+     Add Esi, 8
+     Add Edi, 8
+    Dec Ecx; Jnz @Next;{}
+    emms
+    Jmp @ExitSub
+
+    @DrawBanked:
+    Mov Edi, 0A0000h
+    Mov Esi, pBuf
+    Mov Ecx, Esi
+    LodsD
+    Mov Ebx, Eax
+    LodsD
+    Mul Ebx
+    Mov Edx, Eax
+    LodsD {Bpp}
+    Mul Edx
+    Mov TotalMem,Eax
+    Mov Edx, Eax
+    Shr Eax, 16
+    Mov NumBnk, Eax
+    Shl Eax, 16
+    Sub Edx, Eax
+    Mov Ost, Edx
+    Mov Esi, pBuf
+    Add Esi, SizeOfSprite
+
+    {Set 0 bank}
+    Mov CurBnk, 0
+     Mov Eax, 4F05h
+     Mov Ebx, 0
+     Mov Edx, CurBnk
+     Int 10h
+    {Loop banks}
+    Mov Edx, NumBnk
+    Inc Edx
+
+    Cmp MMX_ENABLED, 1
+    Je @DoMMXBanked
+
+    @NextBank:
+     Mov Ecx, 10000h/4
+     Mov Edi, 0A0000h
+     ALIGN 4
+     Rep MovsD
+     Mov Ecx, Edx
+     {Next Bank}
+     Inc CurBnk
+     Mov Eax, 4F05h
+     Mov Ebx, 0
+     Mov Edx, CurBnk
+     Int 10h
+     {}
+     Mov Edx, Ecx
+    Dec Edx; Jnz @NextBank
+    Mov Ecx, Ost
+    Shr Ecx, 2
+    ALIGN 4
+    Rep MovsD
+    Jmp @ExitSub
+
+    @DoMMXBanked:
+     Mov Ecx, 10000h/8
+     Mov Edi, 0A0000h
+     ALIGN 4
+     @NextBMMX:
+      MovQ mm0, [esi]
+      MovQ [edi], mm0
+      Add Esi, 8
+      Add Edi, 8
+     Dec Ecx; Jnz @NextBMMX
+     Mov Ecx, Edx
+     {Next Bank}
+     Inc CurBnk
+     Mov Eax, 4F05h
+     Mov Ebx, 0
+     Mov Edx, CurBnk
+     Int 10h
+     {}
+     Mov Edx, Ecx
+    Dec Edx; Jnz @DoMMXBanked
+    {Mov Ecx, Ost
+    Shr Ecx, 3
+    ALIGN 4
+    @NextBMMX2:
+     MovQ mm0, [esi]
+     MovQ [edi], mm0
+     Add Esi, 8
+     Add Edi, 8
+    Dec Ecx; Jnz @NextBMMX2{}
+    EMMS
+
+    @ExitSub:
+   End;
+
+ Procedure CopyLayer(pBuf1, pBuf2 :Pointer);Assembler;
+   Asm
+    Cmp pBuf1, 0
+    Je @ExitSub
+
+    Cmp pBuf2, 0
+    Je @ExitSub
+
+    Mov Esi, pBuf1
+    Mov Ecx, Esi
+    LodsD
+    Mov Ebx, Eax
+    LodsD
+    Mul Ebx
+    Mov Edx, Eax
+    LodsD {Bpp}
+    Mul Edx
+    Mov Edi, pBuf2
+    Mov Esi, Ecx {pBuf1}
+    Add Esi, SizeOfSprite
+    Add Edi, SizeOfSprite
+    Mov Ecx, Eax {Count}
+
+    Cmp MMX_ENABLED, 1
+    Je @DoMMX
+
+    Shr Ecx, 2
+    ALIGN 4
+    Rep MovsD{}
+    Jmp @ExitSub
+
+    @DoMMX:
+    Shr Ecx, 3
+    @Next:
+     ALIGN 4
+     MovQ mm0, [Esi]
+     MovQ [Edi], mm0
+     Add Esi, 8
+     Add Edi, 8
+    Dec Ecx; Jnz @Next;{}
+    Emms
+
+    @ExitSub:
+   End;
+
+ Procedure SetLayer conv arg_stdcall (pSpr:Pointer);
+  Begin
+   With TSprite(pSpr^) Do Begin
+    ScreenSX:=W;
+    ScreenSY:=H;
+    ScreenBpp:=Bpp;
+   End;
+   LFBMem:=Ofs(pSpr^)+SizeOfSprite;
+  End;
+
+
+ Procedure ConvertBpp(pSpr:Pointer);
+   Var
+      Bpp,SBpp        :Byte;
+      W,H             :DWord;
+      pSrc            :Pointer;
+      pDest           :Pointer;
+      Flg             :Boolean;
+      GSiz            :LongInt = 0;
+  Begin
+   If pSpr=Nil Then Exit;
+   //If TSprite(pSpr^).Bpp<>4 Then Exit;
+   If ScreenBpp=TSprite(pSpr^).Bpp Then Exit;
+   Flg:=ScreenBpp>TSprite(pSpr^).Bpp;
+   SBpp:=TSprite(pSpr^).Bpp;
+   If Flg Then Begin
+    GSiz:=TSprite(pSpr^).Bpp*TSprite(pSpr^).W*TSprite(pSpr^).H+SizeOfSprite;
+    GetMem(pSrc,GSiz);
+    Asm
+     Mov Esi, pSpr
+     Mov Edi, pSrc
+     Mov Ecx, GSiz
+     Cld
+     Rep MovsB
+    End;
+    pDest:=pSpr;
+   End Else Begin
+    pSrc:=pSpr;
+    pDest:=pSrc;
+   End;
+   W:=TSprite(pSpr^).W;
+   H:=TSprite(pSpr^).H;
+   TSprite(pSpr^).Bpp:=ScreenBpp;
+   Bpp:=ScreenBpp;
+   Case SBpp Of
+    1:
+       Asm
+        Mov Esi, pSrc
+        Add Esi, SizeOfSprite
+        Mov Edi, pDest
+        Add Edi, SizeOfSprite
+        Mov Eax, H
+        Mul W
+        Mov Ecx, Eax
+
+        Cmp Bpp, 2
+        Je @NextPix16
+
+        @NextPix32:
+         Xor Eax, Eax
+         LodsB
+         Mov Ah, Al
+         Mov Bl, Al
+         And Ah, 11100000b
+         Shl Al, 3
+         And Al, 11100000b
+         Shl Eax, 8
+         Mov Al, Bl
+         Shl Al, 6
+         And Al, 11000000b
+         StosD
+        Dec Ecx; Jnz @NextPix32
+        Jmp @EndSub
+
+        @NextPix16:
+         Xor Eax, Eax
+         Xor Ebx, Ebx
+         Xor Edx, Edx
+         LodsB
+         Mov Bl, Al
+         Mov Dl, Al
+         And Al, 11100000b
+         Shl Bl, 3
+         And Bl, 11100000b
+         Shl Dl, 6
+         And Dl, 11000000b
+         Shl Eax, 8           //
+         Shl Ebx, 3
+         Shr Dl, 3
+         Or Eax, Ebx
+         Or Eax, Edx
+         StosW                //
+        Dec Ecx; Jnz @NextPix16
+
+        @EndSub:
+       End;
+    2:
+       Asm
+        Mov Esi, pSrc
+        Add Esi, SizeOfSprite
+        Mov Edi, pDest
+        Add Edi, SizeOfSprite
+        Mov Eax, H
+        Mul W
+        Mov Ecx, Eax
+
+        Cmp Bpp, 4
+        Je @NextPix32
+
+        @NextPix8:
+         Xor Eax, Eax
+         LodsW
+         Shr Eax, 3
+         Shr Ah, 2
+         Shl Eax, 5
+         Shr Ah, 2
+         Shl Al, 1
+         Shr Eax, 6
+         StosB
+        Dec Ecx; Jnz @NextPix8
+        Jmp @EndSub
+
+        @NextPix32:
+         Xor Eax, Eax
+         LodsW
+         Mov Ebx, Eax
+         Shr Eax, 3
+         Shl Ah, 3             //R
+         And Al, 11111100b     //G
+         Shl Eax, 8
+         And Bl, 00011111b     //B
+         Shl Bl, 3
+         Mov Al, Bl            //B
+         {DO IT}
+         StosD
+        Dec Ecx; Jnz @NextPix32
+
+        @EndSub:
+       End;
+    4:
+       Asm
+        Mov Esi, pSrc
+        Add Esi, SizeOfSprite
+        Mov Edi, pDest
+        Add Edi, SizeOfSprite
+        Mov Eax, H
+        Mul W
+        Mov Ecx, Eax
+
+        Cmp Bpp, 2
+        Je @NextPix16
+
+        @NextPix8:
+         LodsD
+         Shr Al, 6
+         Mov Bl, Al
+         Shr Ah, 5
+         Shl Ah, 2
+         Or Bl, Ah
+         Shr Eax, 16
+         Shr Al, 5
+         Shl Al, 5
+         Or Al, Bl
+         StosB
+        Dec Ecx; Jnz @NextPix8
+        Jmp @EndSub
+
+        @NextPix16:
+         LodsD
+         //Shr Eax, 8
+         Mov Edx, Eax
+         Mov Ebx, Eax
+         {R}
+         Shr Eax, 16
+         Xor Ah, Ah
+         Shr Ax, 3
+         Shl Ax, 5+6
+         {G}
+         Shr Ebx, 8
+         Xor Bh, Bh
+         Shr Bx, 2
+         Shl Bx, 5
+         {B}
+         Xor Dh, Dh
+         Shr Dl, 3
+         {DO IT}
+         Or Ax, Bx
+         Or Ax, Dx
+         StosW
+        Dec Ecx; Jnz @NextPix16
+
+        @EndSub:
+       End;
+   End;
+   If (Flg) And (GSiz>0) Then FreeMem(pSrc,GSiz);
+  End;
+
+ Procedure SetFont(pFnt:Pointer);
+  Begin
+   pFont:=pFnt;
+  End;
+
+ Procedure PutString(X,Y,C,S:DWord;Text:String);
+   Var
+      I:Byte;
+  Begin
+   For I:=1 To Ord(Text[0]) Do PutChar(X+((I-1) Shl 3),Y,C,S,Text[I]);
+  End;
+
+ Procedure Print_(X,Y,Color:DWord;V,H:Byte;S:String); { Only for compatibility with old GDI }
+  Begin
+   PutString(X,Y,Color,0,S);
+  End;
+
+ { Sprite Procs }
+
+ Procedure GetSprSize(Var X,Y :DWord; Var PPic :Pointer);
+  Begin
+   X:=TSprite(pPic^).W;
+   Y:=TSprite(pPic^).H;
+  End;
+
+ Function InitSprite conv arg_stdcall (SX, SY, BytesPerPixel :DWord):Pointer;
+   Var Arr:Pointer;
+  Begin
+   GetMem(Arr,SX*SY*BytesPerPixel+SizeOfSprite);
+   TSprite(Arr^).W:=SX;
+   TSprite(Arr^).H:=SY;
+   TSprite(Arr^).Bpp:=BytesPerPixel;
+   InitSprite:=Arr;
+  End;
+
+ Procedure FreeSprite conv arg_stdcall (pPic:Pointer);
+  Begin
+   If pPic=Nil Then Exit;
+   FreeMem(pPic,TSprite(pPic^).W*TSprite(pPic^).H*TSprite(pPic^).Bpp);
+  End;
+
+ Function GetSizeOfSpriteHeader conv arg_stdcall :DWord;
+ Begin
+  GetSizeOfSpriteHeader:=SizeOfSprite;
+ End;
+
+ Procedure SetGRAPHMMX(ST:Boolean);
+  Begin
+   MMX_ENABLED:=ST;
+  End;
+
+ Procedure MemCopyMmx conv arg_stdcall (pSrc, pDest, size :DWord); Assembler;
+ Asm
+    Mov Esi, pSrc
+    Mov Edi, pDest
+    Mov Ecx, size
+    Shr Ecx, 7
+
+    ALIGN 4
+    @Loop:
+        MovQ mm0, [esi]
+        MovQ mm1, [esi+8]
+        MovQ mm2, [esi+16]
+        MovQ mm3, [esi+24]
+        MovQ mm4, [esi+32]
+        MovQ mm5, [esi+40]
+        MovQ mm6, [esi+48]
+        MovQ mm7, [esi+56]
+        MovQ [edi], mm0
+        MovQ [edi+8], mm1
+        MovQ [edi+16], mm2
+        MovQ [edi+24], mm3
+        MovQ [edi+32], mm4
+        MovQ [edi+40], mm5
+        MovQ [edi+48], mm6
+        MovQ [edi+56], mm7
+        Add Esi, 64
+        Add Edi, 64
+        Dec Ecx
+    Jg @Loop
+
+    Emms  // Reset registers
+ End;
+
+ Procedure MemCopy conv arg_stdcall (pSrc, pDest, size :DWord); Assembler;
+ Asm
+    Mov Esi, pSrc
+    Mov Edi, pDest
+    Mov Ecx, size
+    Shr Ecx, 2
+    ALIGN 4
+    Rep MovsD
+    Emms  // Reset registers
+ End;
+
+
+{ Exports }
+exports
+  SetLayer, InitSprite, FreeSprite, GetSizeOfSpriteHeader, PSET32, PGET32, tPut32, btPut32, PutRgn32, _CLS, MemCopyMmx, MemCopy;
+
+
+begin
+    SetGRAPHMMX(True);
+end.
