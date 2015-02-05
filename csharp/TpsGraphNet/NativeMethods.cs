@@ -7,7 +7,7 @@ namespace TpsGraphNet
     {
         #region public static methods
 
-        [DllImport("kernel32", EntryPoint = "CreateFileMapping", SetLastError = true, CharSet = CharSet.Auto)]
+        [DllImport("kernel32", EntryPoint = "CreateFileMapping", SetLastError = true, CharSet = CharSet.Unicode)]
         public static extern IntPtr CreateFileMapping(IntPtr hFile, IntPtr lpAttributes, int flProtect, int dwMaximumSizeLow, int dwMaximumSizeHigh, string lpName);
 
         [DllImport("kernel32", EntryPoint = "CloseHandle", SetLastError = true)]
