@@ -14,4 +14,8 @@ Controls:
 - left control to fire rockets
 
 
+Habr post: http://habrahabr.ru/post/211801/
+
+Video: http://www.youtube.com/watch?v=NnJjX9xUB7c
+
 ![LanderNet screenshot](Screenshot.png?raw=true)
