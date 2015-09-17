@@ -123,7 +123,8 @@ namespace LanderNet.UI.MainView
 
             if (objectType == typeof(Bullet))
             {
-                obj.SetZIndex(3).AddComponent(new AnimatedSpriteComponent("B", 1));
+                obj.SetZIndex(3).AddComponent(new AnimatedSpriteComponent("R", 1, 
+                    decodePixelWidth: 10, decodePixelHeight: 15));
             }
         }
 
