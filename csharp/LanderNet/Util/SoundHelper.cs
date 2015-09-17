@@ -123,13 +123,20 @@ namespace LanderNet.UI.Util
 
         private void RunPlayerThread()
         {
-            _audioDevice = new XAudio2();
+            try
+            {
+                _audioDevice = new XAudio2();
 
-            // Master voice is never used, but must be created
-            _masterVoice = new MasteringVoice(_audioDevice) { Volume = 1 };
+                // Master voice is never used, but must be created
+                _masterVoice = new MasteringVoice(_audioDevice) { Volume = 1 };
 
-            _playerThreadDispatcher = Dispatcher.CurrentDispatcher;
-            Dispatcher.Run();
+                _playerThreadDispatcher = Dispatcher.CurrentDispatcher;
+                Dispatcher.Run();
+            }
+            catch (Exception)
+            {
+                // Audio initialization failed.
+            }
         }
 
         private static readonly Dictionary<string, byte[]> SoundCache = new Dictionary<string, byte[]>();
