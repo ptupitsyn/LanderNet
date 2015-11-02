@@ -69,7 +69,7 @@ namespace LanderNet.UI.Components
 
         public AnimatedSpriteComponent Clone(double scale = 1)
         {
-            return new AnimatedSpriteComponent(_spritesByRawIndex, _fps, (int) (_decodePixelWidth*scale), (int) (_decodePixelHeight*scale));
+            return new AnimatedSpriteComponent(_fileNames, _fps, (int) (_decodePixelWidth*scale), (int) (_decodePixelHeight*scale));
         }
 
         #endregion
@@ -109,17 +109,10 @@ namespace LanderNet.UI.Components
             _decodePixelWidth = decodePixelWidth;
             _decodePixelHeight = decodePixelHeight;
 
-            _spritesByRawIndex = fileNames.Select(GetSprite).ToArray();
+            _fileNames = fileNames.ToArray();
+            _spritesByRawIndex = _fileNames.Select(GetSprite).ToArray();
             _fps = fps;
             _randomSecondsOffset = RandomHelper.Instance.Next(1000);
-        }
-
-        private AnimatedSpriteComponent(Sprite[] spritesByRawIndex, double fps, int decodePixelWidth, int decodePixelHeight)
-        {
-            _spritesByRawIndex = spritesByRawIndex;
-            _fps = fps;
-            _decodePixelWidth = decodePixelWidth;
-            _decodePixelHeight = decodePixelHeight;
         }
 
         #endregion
@@ -131,6 +124,7 @@ namespace LanderNet.UI.Components
         private readonly int _randomSecondsOffset;
         private readonly int _decodePixelWidth;
         private readonly int _decodePixelHeight;
+        private readonly string[] _fileNames;
 
         #endregion
     }
