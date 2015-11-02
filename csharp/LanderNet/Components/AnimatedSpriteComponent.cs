@@ -39,8 +39,7 @@ namespace LanderNet.UI.Components
 
         public AnimatedSpriteComponent(string prefix, int frameCount, double fps = 10, int frameIncrement = 1,
             int initialFrame = 0, bool? reverseAnimation = null, int decodePixelWidth = 0, int decodePixelHeight = 0)
-            : this(
-                GetFileNames(prefix, frameCount, frameIncrement, initialFrame, reverseAnimation).ToArray(), fps,
+            : this(GetFileNames(prefix, frameCount, frameIncrement, initialFrame, reverseAnimation).ToArray(), fps,
                 decodePixelWidth, decodePixelHeight)
         {
         }
@@ -51,10 +50,14 @@ namespace LanderNet.UI.Components
 
         public Sprite GetCurrentSprite()
         {
-            var fileName = _fileNamesByRawIndex[CurrentSpriteIndexRaw];
+            return _spritesByRawIndex[CurrentSpriteIndexRaw];
+        }
 
+        private Sprite GetSprite(string fileName)
+        {
             Sprite sprite;
             var cacheKey = new Tuple<string, int, int>(fileName, _decodePixelWidth, _decodePixelHeight);
+
             if (!SpriteCache.TryGetValue(cacheKey, out sprite))
             {
                 sprite = BitmapUtils.GetResourceSprite(fileName, _decodePixelWidth, _decodePixelHeight);
@@ -66,7 +69,7 @@ namespace LanderNet.UI.Components
 
         public AnimatedSpriteComponent Clone(double scale = 1)
         {
-            return new AnimatedSpriteComponent(_fileNamesByRawIndex, _fps, (int) (_decodePixelWidth*scale), (int) (_decodePixelHeight*scale));
+            return new AnimatedSpriteComponent(_spritesByRawIndex, _fps, (int) (_decodePixelWidth*scale), (int) (_decodePixelHeight*scale));
         }
 
         #endregion
@@ -80,7 +83,7 @@ namespace LanderNet.UI.Components
                 // A single tick represents one hundred nanoseconds or one ten-millionth of a second. There are 10,000 ticks in a millisecond.
                 const double ticksPerSecond = 10000*1000;
                 var seconds = DateTime.Now.Ticks/ticksPerSecond + _randomSecondsOffset;
-                var result = (int) ((seconds*_fps)%_fileNamesByRawIndex.Length);
+                var result = (int) ((seconds*_fps)%_spritesByRawIndex.Length);
                 return result;
             }
         }
@@ -103,9 +106,18 @@ namespace LanderNet.UI.Components
         private AnimatedSpriteComponent(IEnumerable<string> fileNames, double fps, int decodePixelWidth,
             int decodePixelHeight)
         {
-            _fileNamesByRawIndex = fileNames.ToArray();
+            _decodePixelWidth = decodePixelWidth;
+            _decodePixelHeight = decodePixelHeight;
+
+            _spritesByRawIndex = fileNames.Select(GetSprite).ToArray();
             _fps = fps;
             _randomSecondsOffset = RandomHelper.Instance.Next(1000);
+        }
+
+        private AnimatedSpriteComponent(Sprite[] spritesByRawIndex, double fps, int decodePixelWidth, int decodePixelHeight)
+        {
+            _spritesByRawIndex = spritesByRawIndex;
+            _fps = fps;
             _decodePixelWidth = decodePixelWidth;
             _decodePixelHeight = decodePixelHeight;
         }
@@ -114,7 +126,7 @@ namespace LanderNet.UI.Components
 
         #region private fields
 
-        private readonly string[] _fileNamesByRawIndex;
+        private readonly Sprite[] _spritesByRawIndex;
         private readonly double _fps;
         private readonly int _randomSecondsOffset;
         private readonly int _decodePixelWidth;

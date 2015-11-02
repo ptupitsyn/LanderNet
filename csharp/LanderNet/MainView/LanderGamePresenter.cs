@@ -39,7 +39,7 @@ namespace LanderNet.UI.MainView
             var shipSpeed =
                 _landerGame.GameObjects.OfType<Spaceship>()
                     .Select(x => x.GetComponent<LinearMovementComponent>())
-                    .FirstOrDefault();
+                    .Single();
 
             if (shipSpeed == null)
                 return;
@@ -61,7 +61,6 @@ namespace LanderNet.UI.MainView
             {
                 var pos = gameObject.GetComponent<PositionComponent>();
                 if (pos == null) continue;
-                var size = gameObject.GetComponent<SizeComponent>() ?? new SizeComponent();
 
                 var relativeX = pos.X - ssPos.X;
                 if (relativeX < -renderTarget.Width || relativeX > renderTarget.Width) continue;
@@ -69,11 +68,14 @@ namespace LanderNet.UI.MainView
                 var relativeY = pos.Y - ssPos.Y;
                 if (relativeY < -renderTarget.Height || relativeY > renderTarget.Height) continue;
 
+                var size = gameObject.GetComponent<SizeComponent>();
+                var height = size == null ? 0 : size.Height;
+
                 foreach (var sprite in gameObject.GetComponents<AnimatedSpriteComponent>().Where(x => x.IsVisible))
                 {
                     // Ship is always centered horizontally and 15px from the bottom border
                     var renderX = (double)renderTarget.Width / 2 + relativeX - 50 + sprite.OffsetX;
-                    var renderY = (double)renderTarget.Height - 15 - relativeY + sprite.OffsetY - size.Height;
+                    var renderY = (double)renderTarget.Height - 15 - relativeY + sprite.OffsetY - height;
 
                     renderTarget.PutSprite((uint)renderX, (uint)renderY, sprite.GetCurrentSprite(), sprite.BlendMode);
                 }
