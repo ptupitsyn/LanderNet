@@ -97,7 +97,7 @@ namespace LanderNet.UI.Components
             get { return VisibilityFunc == null || VisibilityFunc(); }
         }
 
-        public TpsGraphWrapper.BlendMode? BlendMode { get; set; }
+        public BlendMode? BlendMode { get; set; }
 
         #endregion
 

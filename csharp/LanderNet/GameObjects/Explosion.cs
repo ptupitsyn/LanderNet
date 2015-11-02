@@ -26,7 +26,7 @@ namespace LanderNet.UI.GameObjects
             AddComponent(new AnimatedSpriteComponent("X", 9, fps: 20, frameIncrement: 10, initialFrame: 10,
                 reverseAnimation: false, decodePixelWidth: (int) (100*scale))
             {
-                BlendMode = TpsGraphWrapper.BlendMode.Additive,
+                BlendMode = BlendMode.Additive,
                 VisibilityFunc = () => (DateTime.UtcNow - animationStart) < TimeSpan.FromSeconds(animationDuration)
             });
 
@@ -35,7 +35,7 @@ namespace LanderNet.UI.GameObjects
                 AddComponent(new AnimatedSpriteComponent("X", 9, fps: 20, frameIncrement: 10, initialFrame: 10,
                     reverseAnimation: true, decodePixelWidth: (int) (100*scale))
                 {
-                    BlendMode = TpsGraphWrapper.BlendMode.Additive,
+                    BlendMode = BlendMode.Additive,
                     VisibilityFunc = () => (DateTime.UtcNow - animationStart) > TimeSpan.FromSeconds(animationDuration)
                 });
             }

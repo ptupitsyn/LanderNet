@@ -8,22 +8,12 @@ namespace TpsGraphNet
 {
     public sealed class Sprite : IDisposable
     {
-        #region private static methods
-
-        private static DisposableHelper GetUnmanagedCallToken()
-        {
-            return new DisposableHelper(FpUtil.ResetFpuRegisters);
-        }
-
-        #endregion
-
         #region private static properties and indexers
 
         private static uint SizeofSpriteHeader
         {
             get { return (uint) (_sizeofSpriteHeader ?? (_sizeofSpriteHeader = TpsGraphWrapper.GetSizeOfSpriteHeader())); }
         }
-
 
         #endregion
 
@@ -41,12 +31,9 @@ namespace TpsGraphNet
             _height = height;
             _sizeInBytes = _width*_height*4;
             _sizeInBytesForMmx = (_sizeInBytes/8)*8;
-
-            using (GetUnmanagedCallToken())
-            {
-                _dataPtr = TpsGraphWrapper.InitSprite(width, height, 4);
-            }
-        }
+                
+            _dataPtr = TpsGraphWrapper.InitSprite(width, height, 4);
+       }
 
         public Sprite(BitmapSource source) : this((uint) source.PixelWidth, (uint) source.PixelHeight)
         {
@@ -70,41 +57,37 @@ namespace TpsGraphNet
         {
             if (x >= Width || y >= Height) return;
 
-            using (GetLayerUpdateCallToken())
-            {
-                TpsGraphWrapper.PSET32(x, y, color);
-            }
+            SetLayer();
+                
+            TpsGraphWrapper.SetPixel(x, y, color);
         }
 
         public uint GetPixel(uint x, uint y)
         {
-            using (GetLayerUpdateCallToken())
-            {
-                return TpsGraphWrapper.PGET32(x, y);
-            }
+            SetLayer();
+
+            return TpsGraphWrapper.GetPixel(x, y);
         }
 
         public void Fill(uint color)
         {
-            using (GetLayerUpdateCallToken())
-            {
-                TpsGraphWrapper._CLS(color);
-                //TpsGraphWrapper.MemSet(RawDataPtr, 0, _sizeInBytes);
-            }
+            SetLayer();
+
+            TpsGraphWrapper.ClearScreen(color);
+            //TpsGraphWrapper.MemSet(RawDataPtr, 0, _sizeInBytes);
         }
 
-        public void PutSprite(uint x, uint y, Sprite sprite, TpsGraphWrapper.BlendMode? blendMode)
+        public void PutSprite(uint x, uint y, Sprite sprite, BlendMode? blendMode)
         {
-            using (GetLayerUpdateCallToken())
+            SetLayer();
+            
+            if (blendMode == null)
             {
-                if (blendMode == null)
-                {
-                    TpsGraphWrapper.tPut32(x, y, TransparentColor, sprite._dataPtr);
-                }
-                else
-                {
-                    TpsGraphWrapper.btPut32(x, y, sprite._dataPtr, (byte) blendMode);
-                }
+                TpsGraphWrapper.PutSprite(x, y, TransparentColor, sprite._dataPtr);
+            }
+            else
+            {
+                TpsGraphWrapper.PutSpriteBlend(x, y, sprite._dataPtr, (byte) blendMode);
             }
         }
 
@@ -262,17 +245,11 @@ namespace TpsGraphNet
             TpsGraphWrapper.SetLayer(_dataPtr);
         }
 
-        private DisposableHelper GetLayerUpdateCallToken()
-        {
-            SetLayer();
-            return GetUnmanagedCallToken();
-        }
-
         #endregion
 
         #region private fields
 
-        private uint _dataPtr;
+        private readonly uint _dataPtr;
         private bool _shouldFreeSprite = true;
         private readonly uint _height;
         private readonly uint _width;

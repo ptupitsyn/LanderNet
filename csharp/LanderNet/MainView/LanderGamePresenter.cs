@@ -95,7 +95,7 @@ namespace LanderNet.UI.MainView
                     OffsetX = 35,
                     OffsetY = 60,
                     VisibilityFunc = () => movementComponent != null && movementComponent.IsAccelerating,
-                    BlendMode = TpsGraphWrapper.BlendMode.Additive
+                    BlendMode = BlendMode.Additive
                 });
 
                 // Ship

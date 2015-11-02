@@ -4,72 +4,136 @@ using System.Security;
 namespace TpsGraphNet
 {
     /// <summary>
-    ///     Provides access to native TMT Pascal DLL functions.
+    /// Provides access to native TMT Pascal DLL functions.
     /// </summary>
     public static class TpsGraphWrapper
     {
-        #region BlendMode enum
-
-        public enum BlendMode
+        public static void ClearScreen(uint color)
         {
-            Additive = 1,
-            Substractive = 2,
-            HalfAdditive = 3
+            Native._CLS(color);
+
+            FpUtil.ResetFpuRegisters();
         }
 
-        #endregion
+        public static uint GetSizeOfSpriteHeader()
+        {
+            return Native.GetSizeOfSpriteHeader();
+        }
 
-        #region public static methods
+        public static void MemCopyMmx(uint srcPtr, uint dstPtr, uint length)
+        {
+            Native.MemCopyMmx(srcPtr, dstPtr, length);
 
-        /// <summary>
-        /// Sets the active layer (sprite) which other procedures will manipulate.
-        /// </summary>
-        /// <param name="spritePtr">Reference to the beginning of sprite struct.</param>
-        [DllImport("TPSGRAPH", CallingConvention = CallingConvention.StdCall)]
-        public static extern void SetLayer(uint spritePtr);
+            FpUtil.ResetFpuRegisters();
+        }
 
-        /// <summary>
-        /// Set pixel.
-        /// </summary>
-        [DllImport("TPSGRAPH", CallingConvention = CallingConvention.StdCall)]
-        public static extern void PSET32(uint x, uint y, uint c);
+        public static uint InitSprite(uint width, uint height, uint bytesPerPixel)
+        {
+            var res = Native.InitSprite(width, height, bytesPerPixel);
 
-        /// <summary>
-        /// Get pixel.
-        /// </summary>
-        [DllImport("TPSGRAPH", CallingConvention = CallingConvention.StdCall)]
-        public static extern uint PGET32(uint x, uint y);
+            FpUtil.ResetFpuRegisters();
 
-        [DllImport("TPSGRAPH", CallingConvention = CallingConvention.StdCall)]
-        public static extern uint InitSprite(uint width, uint height, uint bytesPerPixel);
+            return res;
+        }
 
-        [DllImport("TPSGRAPH", CallingConvention = CallingConvention.StdCall)]
-        public static extern void FreeSprite(uint spritePtr);
+        public static void SetPixel(uint x, uint y, uint color)
+        {
+            Native.PSET32(x, y, color);
 
-        [DllImport("TPSGRAPH", CallingConvention = CallingConvention.StdCall)]
-        public static extern uint GetSizeOfSpriteHeader();
+            FpUtil.ResetFpuRegisters();
+        }
 
-        [DllImport("TPSGRAPH", CallingConvention = CallingConvention.StdCall)]
-        public static extern uint tPut32(uint x, uint y, uint transparentColor, uint spritePtr);
+        public static uint GetPixel(uint x, uint y)
+        {
+            var res = Native.PGET32(x, y);
 
-        [DllImport("TPSGRAPH", CallingConvention = CallingConvention.StdCall)]
-        public static extern uint btPut32(uint x, uint y, uint spritePtr, byte blendMode);
+            FpUtil.ResetFpuRegisters();
 
-        [DllImport("TPSGRAPH", CallingConvention = CallingConvention.StdCall)]
-        public static extern void _CLS(uint color);
+            return res;
+        }
 
-        [DllImport("TPSGRAPH", CallingConvention = CallingConvention.StdCall)]
-        public static extern void MemCopyMmx(uint srcPtr, uint dstPtr, uint length);
+        public static void PutSprite(uint x, uint y, uint transparentColor, uint dataPtr)
+        {
+            Native.tPut32(x, y, transparentColor, dataPtr);
 
-        [DllImport("TPSGRAPH", CallingConvention = CallingConvention.StdCall)]
-        public static extern void MemCopy(uint srcPtr, uint dstPtr, uint length);
+            FpUtil.ResetFpuRegisters();
+        }
 
-        [DllImport("msvcrt.dll", EntryPoint = "memcpy", CallingConvention = CallingConvention.Cdecl, SetLastError = false), SuppressUnmanagedCodeSecurity]
-        public static extern uint CopyMemory(uint dest, uint src, ulong count);
+        public static void PutSpriteBlend(uint x, uint y, uint dataPtr, byte blendMode)
+        {
+            Native.btPut32(x, y, dataPtr, blendMode);
 
-        [DllImport("msvcrt.dll", EntryPoint = "memset", CallingConvention = CallingConvention.Cdecl, SetLastError = false)]
-        public static extern uint MemSet(uint dest, uint color, uint count);
+            FpUtil.ResetFpuRegisters();
+        }
 
-        #endregion
+        public static void CopyMemory(uint targetPtr, uint srcPtr, uint sizeInBytes)
+        {
+            Native.CopyMemory(targetPtr, srcPtr, sizeInBytes);
+
+            FpUtil.ResetFpuRegisters();
+        }
+
+        public static void FreeSprite(uint dataPtr)
+        {
+            Native.FreeSprite(dataPtr);
+        }
+
+        public static void SetLayer(uint dataPtr)
+        {
+            Native.SetLayer(dataPtr);
+        }
+        
+        private static class Native
+        {
+            /// <summary>
+            /// Sets the active layer (sprite) which other procedures will manipulate.
+            /// </summary>
+            /// <param name="spritePtr">Reference to the beginning of sprite struct.</param>
+            [DllImport("TPSGRAPH", CallingConvention = CallingConvention.StdCall)]
+            public static extern void SetLayer(uint spritePtr);
+
+            /// <summary>
+            /// Set pixel.
+            /// </summary>
+            [DllImport("TPSGRAPH", CallingConvention = CallingConvention.StdCall)]
+            public static extern void PSET32(uint x, uint y, uint c);
+
+            /// <summary>
+            /// Get pixel.
+            /// </summary>
+            [DllImport("TPSGRAPH", CallingConvention = CallingConvention.StdCall)]
+            public static extern uint PGET32(uint x, uint y);
+
+            [DllImport("TPSGRAPH", CallingConvention = CallingConvention.StdCall)]
+            public static extern uint InitSprite(uint width, uint height, uint bytesPerPixel);
+
+            [DllImport("TPSGRAPH", CallingConvention = CallingConvention.StdCall)]
+            public static extern void FreeSprite(uint spritePtr);
+
+            [DllImport("TPSGRAPH", CallingConvention = CallingConvention.StdCall)]
+            public static extern uint GetSizeOfSpriteHeader();
+
+            [DllImport("TPSGRAPH", CallingConvention = CallingConvention.StdCall)]
+            public static extern uint tPut32(uint x, uint y, uint transparentColor, uint spritePtr);
+
+            [DllImport("TPSGRAPH", CallingConvention = CallingConvention.StdCall)]
+            public static extern uint btPut32(uint x, uint y, uint spritePtr, byte blendMode);
+
+            [DllImport("TPSGRAPH", CallingConvention = CallingConvention.StdCall)]
+            public static extern void _CLS(uint color);
+
+            [DllImport("TPSGRAPH", CallingConvention = CallingConvention.StdCall)]
+            public static extern void MemCopyMmx(uint srcPtr, uint dstPtr, uint length);
+
+            [DllImport("TPSGRAPH", CallingConvention = CallingConvention.StdCall)]
+            public static extern void MemCopy(uint srcPtr, uint dstPtr, uint length);
+
+            [DllImport("msvcrt.dll", EntryPoint = "memcpy", CallingConvention = CallingConvention.Cdecl, SetLastError = false), SuppressUnmanagedCodeSecurity]
+            public static extern uint CopyMemory(uint dest, uint src, ulong count);
+
+            [DllImport("msvcrt.dll", EntryPoint = "memset", CallingConvention = CallingConvention.Cdecl, SetLastError = false)]
+            public static extern uint MemSet(uint dest, uint color, uint count);
+            
+        }
     }
 }
