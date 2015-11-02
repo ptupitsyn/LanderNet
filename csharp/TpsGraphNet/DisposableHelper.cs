@@ -2,7 +2,7 @@
 
 namespace TpsGraphNet
 {
-    public class DisposableHelper : IDisposable
+    public struct DisposableHelper : IDisposable
     {
         #region Fields and Constants
 

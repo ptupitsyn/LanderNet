@@ -10,7 +10,7 @@ namespace TpsGraphNet
     {
         #region private static methods
 
-        private static IDisposable GetUnmanagedCallToken()
+        private static DisposableHelper GetUnmanagedCallToken()
         {
             return new DisposableHelper(FpUtil.ResetFpuRegisters);
         }
@@ -262,7 +262,7 @@ namespace TpsGraphNet
             TpsGraphWrapper.SetLayer(_dataPtr);
         }
 
-        private IDisposable GetLayerUpdateCallToken()
+        private DisposableHelper GetLayerUpdateCallToken()
         {
             SetLayer();
             return GetUnmanagedCallToken();
