@@ -77,6 +77,8 @@ namespace LanderNet.Game.Components
 
             // Micro-optimization: use for loop instead of Contains
             var collidesWithGivenObject = false;
+            // ReSharper disable once LoopCanBeConvertedToQuery
+            // ReSharper disable once ForCanBeConvertedToForeach
             for (var i = 0; i < _collidesWith.Length; i++)
             {
                 if (ReferenceEquals(_collidesWith[i], type))

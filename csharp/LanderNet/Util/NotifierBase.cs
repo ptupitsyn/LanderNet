@@ -15,8 +15,7 @@ namespace LanderNet.UI.Util
         protected void OnPropertyChanged(string propertyName)
         {
             // TODO: [CallerMemberName] in .NET 4.5
-            var handler = PropertyChanged;
-            if (handler != null) handler(this, new PropertyChangedEventArgs(propertyName));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
         #endregion

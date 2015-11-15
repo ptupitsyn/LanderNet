@@ -9,7 +9,7 @@ namespace LanderNet.Game.Components
         public LinearMovementComponent(PositionComponent position)
         {
             if (position == null) throw new ArgumentNullException();
-            _position = position;
+            Position = position;
         }
 
         #endregion
@@ -37,10 +37,7 @@ namespace LanderNet.Game.Components
         /// <summary>
         /// Gets or sets the position.
         /// </summary>
-        public PositionComponent Position
-        {
-            get { return _position; }
-        }
+        public PositionComponent Position { get; }
 
         /// <summary>
         /// Gets or sets the X speed, in units per second. 
@@ -123,7 +120,6 @@ namespace LanderNet.Game.Components
 
         #region private fields
 
-        private readonly PositionComponent _position;
         private double _ySpeedMin = double.MinValue;
         private double _ySpeed;
         private double _xSpeed;

@@ -12,25 +12,13 @@ namespace LanderNet.Game.Stages
             CratesPerSecond = 0.7;
         }
 
-        public double AsteroidsPerSecond
-        {
-            get; private set;
-        }
+        public double AsteroidsPerSecond { get; private set; }
 
-        public double CratesPerSecond
-        {
-            get; private set;
-        }
+        public double CratesPerSecond { get; }
 
-        public string Description
-        {
-            get { return "Survive as long as you can, score points by shooting asteroids and collecting bonuses."; }
-        }
+        public string Description => "Survive as long as you can, score points by shooting asteroids and collecting bonuses.";
 
-        public string Name
-        {
-            get { return "Survival"; }
-        }
+        public string Name => "Survival";
 
         public int GetAsteroidScore(IGameObject asteroid)
         {
@@ -39,7 +27,7 @@ namespace LanderNet.Game.Stages
 
             var health = asteroid.GetComponent<HealthComponent>();
 
-            return (int) (health != null ? health.MaxHealth : 0);
+            return (int) (health?.MaxHealth ?? 0);
         }
 
         public int GetCrateScore(IGameObject crate)

@@ -8,28 +8,20 @@ namespace LanderNet.Game.Components
 
         public ExpirationComponent(DateTime expirationTime)
         {
-            _expirationTime = expirationTime;
+            ExpirationTime = expirationTime;
         }
 
         #endregion
 
         #region public properties and indexers
 
-        public bool IsExpired
-        {
-            get { return ExpirationTime < DateTime.Now; }
-        }
+        public bool IsExpired => ExpirationTime < DateTime.Now;
 
-        public DateTime ExpirationTime
-        {
-            get { return _expirationTime; }
-        }
+        public DateTime ExpirationTime { get; }
 
         #endregion
 
         #region private fields
-
-        private readonly DateTime _expirationTime;
 
         #endregion
     }

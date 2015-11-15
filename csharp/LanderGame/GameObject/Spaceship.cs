@@ -10,7 +10,7 @@ namespace LanderNet.Game.GameObject
         {
             AddComponent(new PositionComponent());
             AddComponent(new LinearMovementComponent(this.GetComponent<PositionComponent>()) {YSpeedMin = 200});
-            AddComponent(new KeyboardControlledMovementComponent(this.GetComponent<LinearMovementComponent>()) {AccelerationPerSecond = 1000});
+            AddComponent(new KeyboardControlledMovementComponent(this.GetComponent<LinearMovementComponent>(), 1000));
             AddComponent(new SizeComponent {Width = 100, Height = 100});
             AddComponent(new HealthComponent{RegenerationSpeed = 1});
             AddComponent(_machinegun = new KeyboardControlledWeaponComponent(onMachinegunFire, Key.Space) { ReloadTime = 0.1 });
@@ -31,10 +31,7 @@ namespace LanderNet.Game.GameObject
                 return Level > 0 ? 2 : 1;
             }
         }
-        public double MachinegunAmmo
-        {
-            get { return _machinegun.Ammo; }
-        }
+        public double MachinegunAmmo => _machinegun.Ammo;
 
         public int RocketLevel
         {
@@ -47,10 +44,7 @@ namespace LanderNet.Game.GameObject
             }
         }
         
-        public double RocketAmmo
-        {
-            get { return _rockets.Ammo; }
-        }
+        public double RocketAmmo => _rockets.Ammo;
 
         public void ProcessPowerup(IGameObject powerup)
         {

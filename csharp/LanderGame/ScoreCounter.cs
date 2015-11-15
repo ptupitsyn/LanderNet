@@ -18,13 +18,7 @@ namespace LanderNet.Game
             game.CrateCollected += OnCrateCollected;
         }
 
-        public int Score
-        {
-            get
-            {
-                return _score;
-            }
-        }
+        public int Score => _score;
 
         public void Reset()
         {
