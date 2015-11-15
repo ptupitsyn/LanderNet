@@ -32,10 +32,24 @@ namespace LanderNet.Game.Components
 
         #region public constructors
 
-        public CollisionComponent(IGameObject parentObject, LanderGame parentGame, params Type[] collidesWith)
+        public CollisionComponent(IGameObject parentObject, LanderGame parentGame, double threshold, Action<CollisionComponent, IGameObject> onCollision, params Type[] collidesWith)
         {
+            if (parentObject == null)
+                throw new ArgumentNullException(nameof(parentObject));
+
+            if (parentGame == null)
+                throw new ArgumentNullException(nameof(parentGame));
+
+            if (onCollision == null)
+                throw new ArgumentNullException(nameof(onCollision));
+
+            if (!collidesWith.Any())
+                throw new ArgumentException();
+
             _parentObject = parentObject;
             _parentGame = parentGame;
+            _threshold = threshold;
+            _onCollision = onCollision;
             _collidesWith = collidesWith;
         }
 
@@ -45,28 +59,11 @@ namespace LanderNet.Game.Components
 
         public void UpdateOnTime(double seconds)
         {
-            var collided = Collided;
-
-            if (collided == null)
-                return;
-
             foreach (var gameObj in _parentGame.GameObjects.AsParallel().Where(DetectCollision).ToArray())
             {
-                collided.Invoke(this, gameObj);
+                _onCollision(this, gameObj);
             }
         }
-
-        #endregion
-
-        #region public properties and indexers
-
-        public double Threshold { get; set; }
-
-        #endregion
-
-        #region public methods
-
-        public event Action<CollisionComponent, IGameObject> Collided;
 
         #endregion
 
@@ -89,7 +86,7 @@ namespace LanderNet.Game.Components
                 }
             }
 
-            return collidesWithGivenObject && AreCollided(_parentObject, obj, Threshold);
+            return collidesWithGivenObject && AreCollided(_parentObject, obj, _threshold);
         }
 
         #endregion
@@ -99,6 +96,8 @@ namespace LanderNet.Game.Components
         private readonly Type[] _collidesWith;
         private readonly IGameObject _parentObject;
         private readonly LanderGame _parentGame;
+        private readonly double _threshold;
+        private readonly Action<CollisionComponent, IGameObject> _onCollision;
 
         #endregion
     }

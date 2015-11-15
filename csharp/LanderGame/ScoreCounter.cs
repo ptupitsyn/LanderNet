@@ -43,6 +43,6 @@ namespace LanderNet.Game
         }
 
         private int _score;
-        private LanderGame _game;
+        private readonly LanderGame _game;
     }
 }

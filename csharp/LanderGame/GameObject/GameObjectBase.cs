@@ -34,10 +34,7 @@ namespace LanderNet.Game.GameObject
 
         #region public properties and indexers
 
-        public IEnumerable<object> Components
-        {
-            get { return _components; }
-        }
+        public IEnumerable<object> Components => _components;
 
         #endregion
 

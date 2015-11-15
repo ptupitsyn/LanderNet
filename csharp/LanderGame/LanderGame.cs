@@ -150,19 +150,11 @@ namespace LanderNet.Game
         {
             _spaceship = new Spaceship(OnMachinegunFire, OnRocketFire);
 
-            var collisionComponent = new CollisionComponent(_spaceship, this, typeof (Asteroid))
-            {
-                Threshold = 20
-            };
-            collisionComponent.Collided += (component, gameObject) => OnAsteroidCollision(gameObject);
-            _spaceship.AddComponent(collisionComponent);
+            _spaceship.AddComponent(new CollisionComponent(_spaceship, this, 20,
+                (component, gameObject) => OnAsteroidCollision(gameObject), typeof (Asteroid)));
 
-            var crateCollisionComponent = new CollisionComponent(_spaceship, this, typeof (Crate))
-            {
-                Threshold = 20
-            };
-            crateCollisionComponent.Collided += (component, gameObject) => OnCrateCollected(gameObject);
-            _spaceship.AddComponent(crateCollisionComponent);
+            _spaceship.AddComponent(new CollisionComponent(_spaceship, this, 20,
+                (component, gameObject) => OnCrateCollected(gameObject), typeof (Crate)));
 
             AddGameObject(_spaceship);
         }
@@ -171,14 +163,11 @@ namespace LanderNet.Game
         {
             var projectile = new T();
 
-            var collision = new CollisionComponent(projectile, this, typeof (Asteroid), typeof (Crate))
-            {
-                Threshold = 15
-            };
-            collision.Collided += (component, gameObject) => OnProjectileHit(gameObject, projectile);
-            projectile.AddComponent(collision);
+            projectile.AddComponent(new CollisionComponent(projectile, this, 15,
+                (component, gameObject) => OnProjectileHit(gameObject, projectile), typeof (Crate), typeof (Asteroid)));
 
             AddGameObject(projectile);
+
             return projectile;
         }
 
