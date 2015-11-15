@@ -22,17 +22,17 @@ namespace LanderNet.UI.MainView
             set
             {
                 _compositionTime = value;
-                OnPropertyChanged("CompositionTime");
+                OnPropertyChanged(nameof(CompositionTime));
             }
         }
 
-        public double FPS
+        public double Fps
         {
             get { return _fps; }
             private set
             {
                 _fps = value;
-                OnPropertyChanged("FPS");
+                OnPropertyChanged(nameof(Fps));
             }
         }
 
@@ -42,14 +42,11 @@ namespace LanderNet.UI.MainView
             set
             {
                 _gameLoopTime = value;
-                OnPropertyChanged("GameLoopTime");
+                OnPropertyChanged(nameof(GameLoopTime));
             }
         }
 
-        public double ObjectCount
-        {
-            get { return _landerGame.GameObjects.Count(); }
-        }
+        public double ObjectCount => _landerGame.GameObjects.Count();
 
         public void MeasureCompositionTime(Action composeAction)
         {
@@ -70,7 +67,7 @@ namespace LanderNet.UI.MainView
             _frameCounter++;
             if (_frameCounter == FrameBatchSize)
             {
-                FPS = FrameBatchSize / (DateTime.Now - _lastFpsTime).TotalSeconds;
+                Fps = FrameBatchSize / (DateTime.Now - _lastFpsTime).TotalSeconds;
                 _frameCounter = 0;
 
                 GameLoopTime = (double)_gameLoopCounter / FrameBatchSize / TimeSpan.TicksPerMillisecond;
@@ -80,7 +77,7 @@ namespace LanderNet.UI.MainView
                 _composeRenderCounter = 0;
 
                 _lastFpsTime = DateTime.Now;
-                OnPropertyChanged("ObjectCount");
+                OnPropertyChanged(nameof(ObjectCount));
             }
         }
 

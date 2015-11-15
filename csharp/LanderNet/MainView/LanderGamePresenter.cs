@@ -69,7 +69,7 @@ namespace LanderNet.UI.MainView
                 if (relativeY < -renderTarget.Height || relativeY > renderTarget.Height) continue;
 
                 var size = gameObject.GetComponent<SizeComponent>();
-                var height = size == null ? 0 : size.Height;
+                var height = size?.Height ?? 0;
 
                 foreach (var sprite in gameObject.GetComponents<AnimatedSpriteComponent>().Where(x => x.IsVisible))
                 {

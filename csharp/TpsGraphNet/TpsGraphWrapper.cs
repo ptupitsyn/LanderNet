@@ -1,6 +1,7 @@
 ﻿using System.Runtime.InteropServices;
 using System.Security;
 
+// ReSharper disable UnusedMember.Local
 namespace TpsGraphNet
 {
     /// <summary>
@@ -15,19 +16,19 @@ namespace TpsGraphNet
             FpUtil.ResetFpuRegisters();
         }
 
-        public static uint GetSizeOfSpriteHeader()
+        public static uint GetSpriteHeaderSize()
         {
             return Native.GetSizeOfSpriteHeader();
         }
 
-        public static void MemCopyMmx(uint srcPtr, uint dstPtr, uint length)
+        public static void CopyMemoryMmx(uint srcPtr, uint dstPtr, uint length)
         {
             Native.MemCopyMmx(srcPtr, dstPtr, length);
 
             FpUtil.ResetFpuRegisters();
         }
 
-        public static uint InitSprite(uint width, uint height, uint bytesPerPixel)
+        public static uint CreateSprite(uint width, uint height, uint bytesPerPixel)
         {
             var res = Native.InitSprite(width, height, bytesPerPixel);
 
@@ -66,19 +67,19 @@ namespace TpsGraphNet
             FpUtil.ResetFpuRegisters();
         }
 
-        public static void CopyMemory(uint targetPtr, uint srcPtr, uint sizeInBytes)
+        public static void CopyMemoryCrt(uint targetPtr, uint srcPtr, uint sizeInBytes)
         {
             Native.CopyMemory(targetPtr, srcPtr, sizeInBytes);
 
             FpUtil.ResetFpuRegisters();
         }
 
-        public static void FreeSprite(uint dataPtr)
+        public static void ReleaseSprite(uint dataPtr)
         {
             Native.FreeSprite(dataPtr);
         }
 
-        public static void SetLayer(uint dataPtr)
+        public static void SetCurrentLayer(uint dataPtr)
         {
             Native.SetLayer(dataPtr);
         }

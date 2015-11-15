@@ -23,7 +23,7 @@ namespace LanderNet.UI.Components
 
         private static string GetFileName(int spriteIndex, string prefix)
         {
-            return string.Format("{0}{1:D4}.bmp", prefix, spriteIndex);
+            return $"{prefix}{spriteIndex:D4}.bmp";
         }
 
         #endregion
@@ -92,10 +92,7 @@ namespace LanderNet.UI.Components
         public double OffsetY { get; set; }
         public Func<bool> VisibilityFunc { get; set; }
 
-        public bool IsVisible
-        {
-            get { return VisibilityFunc == null || VisibilityFunc(); }
-        }
+        public bool IsVisible => VisibilityFunc == null || VisibilityFunc();
 
         public BlendMode? BlendMode { get; set; }
 

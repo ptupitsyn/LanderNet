@@ -59,7 +59,7 @@ namespace LanderNet.UI.Util
             if (!SoundCache.TryGetValue(soundName, out data))
             {
                 var moduleName = Assembly.GetExecutingAssembly().GetName().Name;
-                var resourceLocation = string.Format("pack://application:,,,/{0};component/Resources/Sounds/{1}", moduleName, soundName);
+                var resourceLocation = $"pack://application:,,,/{moduleName};component/Resources/Sounds/{soundName}";
                 var stream = Application.GetResourceStream(new Uri(resourceLocation));
 
                 if (stream == null)
@@ -90,12 +90,10 @@ namespace LanderNet.UI.Util
             Init();
 
             // Queue on the other thread via Dispatcher
-            if (_playerThreadDispatcher != null)
-            {
-                _playerThreadDispatcher.BeginInvoke((Action) (() => PlayImpl(soundName, balance, volume)));
-            }
+            _playerThreadDispatcher?.BeginInvoke((Action) (() => PlayImpl(soundName, balance, volume)));
         }
 
+        // ReSharper disable once UnusedParameter.Local
         private void PlayImpl(string soundName, double balance, double volume)
         {
             var soundStream = GetSoundStream(soundName);
@@ -143,6 +141,7 @@ namespace LanderNet.UI.Util
         
         private XAudio2 _audioDevice;
         private bool _isInitialized;
+        // ReSharper disable once NotAccessedField.Local
         private MasteringVoice _masterVoice;
         private Dispatcher _playerThreadDispatcher;
     }

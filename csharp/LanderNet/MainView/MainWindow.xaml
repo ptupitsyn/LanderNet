@@ -9,7 +9,7 @@
         >
     <Window.Title>
         <MultiBinding StringFormat="{}Lander.NET                  (FPS: {0:0.0}; Compose: {2:0.0}ms; GameLoop: {3:0.0}ms; Scene Objects: {1})">
-            <Binding Path="DevInfo.FPS" />
+            <Binding Path="DevInfo.Fps" />
             <Binding Path="DevInfo.ObjectCount" />
             <Binding Path="DevInfo.CompositionTime" />
             <Binding Path="DevInfo.GameLoopTime" />
@@ -28,7 +28,7 @@
         <ImageBrush ImageSource="{Binding ScreenBufferBitmap}" />
     </Window.Background>
 
-    <Grid x:Name="rootGrid">
+    <Grid x:Name="RootGrid">
         <hud:HeadUpDisplay Game="{Binding LanderGame}" />
         <Border Visibility="{Binding IsPaused, Converter={StaticResource BooleanToVisibilityConverter}}">
             <options:OptionsControl DataContext="{Binding Options}" />

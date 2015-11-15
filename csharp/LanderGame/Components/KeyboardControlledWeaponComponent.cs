@@ -15,10 +15,7 @@ namespace LanderNet.Game.Components
 
         public event Action WeaponFire;
 
-        public double Ammo
-        {
-            get { return _ammo.Health; }
-        }
+        public double Ammo => _ammo.Health;
 
         public double ReloadTime { get; set; }
 
@@ -46,8 +43,7 @@ namespace LanderNet.Game.Components
 
         private void OnWeaponFire()
         {
-            var handler = WeaponFire;
-            if (handler != null) handler();
+            WeaponFire?.Invoke();
         }
 
         private readonly HealthComponent _ammo = new HealthComponent{Health = 10, Maximum = 50};

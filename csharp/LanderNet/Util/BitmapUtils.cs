@@ -13,7 +13,7 @@ namespace LanderNet.UI.Util
             var image = new BitmapImage();
 
             var moduleName = Assembly.GetExecutingAssembly().GetName().Name;
-            var resourceLocation = string.Format("pack://application:,,,/{0};component/Resources/Sprites/{1}", moduleName, resourcePath);
+            var resourceLocation = $"pack://application:,,,/{moduleName};component/Resources/Sprites/{resourcePath}";
 
             image.BeginInit();
             image.UriSource = new Uri(resourceLocation);

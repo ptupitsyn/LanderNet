@@ -38,26 +38,16 @@ namespace LanderNet.UI.MainView
             };
         }
 
-        public LanderGame LanderGame
-        {
-            get
-            {
-                return _landerGame;
-            }
-        }
+        public LanderGame LanderGame => _landerGame;
 
-        public OptionsViewModel Options
+        public OptionsViewModel Options { get; } = new OptionsViewModel
         {
-            get
-            {
-                return _options;
-            }
-        }
+            AsteroidsCount = 30,
+            DebrisLimit = 30,
+            EnableSound = true
+        };
 
-        public DevInfoViewModel DevInfo
-        {
-            get { return _devInfo; }
-        }
+        public DevInfoViewModel DevInfo => _devInfo;
 
         public bool IsPaused
         {
@@ -76,7 +66,7 @@ namespace LanderNet.UI.MainView
                     _landerGame.Resume();
                 }
 
-                OnPropertyChanged("IsPaused");
+                OnPropertyChanged(nameof(IsPaused));
             }
         }
 
@@ -108,7 +98,7 @@ namespace LanderNet.UI.MainView
             private set
             {
                 _screenBufferBitmap = value;
-                OnPropertyChanged("ScreenBufferBitmap");
+                OnPropertyChanged(nameof(ScreenBufferBitmap));
             }
         }
 
@@ -179,21 +169,14 @@ namespace LanderNet.UI.MainView
         {
             if (_screenBackBuf == null || _renderSizeChanged)
             {
-                if (_screenBackBuf != null) _screenBackBuf.Dispose();
+                _screenBackBuf?.Dispose();
                 _screenBackBuf = new Sprite(RenderWidth, RenderHeight);
                 _dispatcher.Invoke((Action) (UpdateBitmapSource));
-                OnPropertyChanged("ScreenBufferScene");
+                OnPropertyChanged(nameof(ScreenBufferBitmap));
                 _renderSizeChanged = false;
                 _presenter.ResetBackground();
             }
         }
-
-        private readonly OptionsViewModel _options = new OptionsViewModel
-        {
-            AsteroidsCount = 30,
-            DebrisLimit = 30,
-            EnableSound = true
-        };
 
         private readonly DevInfoViewModel _devInfo;
         private readonly Dispatcher _dispatcher;

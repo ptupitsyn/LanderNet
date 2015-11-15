@@ -20,25 +20,13 @@ namespace LanderNet.Game
         public event Action<IGameObject> GameObjectAdded;
         public event Action<IGameObject> GameObjectDestroyed;
 
-        public IEnumerable<IGameObject> GameObjects
-        {
-            get { return _gameObjects; }
-        }
+        public IEnumerable<IGameObject> GameObjects => _gameObjects;
 
-        public int Score
-        {
-            get { return _score.Score; }
-        }
+        public int Score => _score.Score;
 
-        public double SecondsPassed
-        {
-            get { return _currentSecond - _previousGameLoopIterationSecond; }
-        }
+        public double SecondsPassed => _currentSecond - _previousGameLoopIterationSecond;
 
-        public IStage Stage
-        {
-            get { return _stage; }
-        }
+        public IStage Stage { get; private set; } = new SurvivalStage();
 
         public bool IsPaused { get; private set; }
         
@@ -83,7 +71,7 @@ namespace LanderNet.Game
             _gameObjects.Clear();
             AddSpaceShip();
 
-            _stage = new SurvivalStage();
+            Stage = new SurvivalStage();
             _score.Reset();
         }
 
@@ -237,8 +225,7 @@ namespace LanderNet.Game
 
         private void OnAsteroidShot(IGameObject obj)
         {
-            var handler = AsteroidShot;
-            if (handler != null) handler(obj);
+            AsteroidShot?.Invoke(obj);
         }
 
         private void OnCrateCollected(IGameObject crate)
@@ -246,20 +233,17 @@ namespace LanderNet.Game
             _spaceship.ProcessPowerup(crate);
             _gameObjects.Remove(crate);
 
-            var handler = CrateCollected;
-            if (handler != null) handler(crate);
+            CrateCollected?.Invoke(crate);
         }
 
         private void OnGameObjectAdded(IGameObject obj)
         {
-            var handler = GameObjectAdded;
-            if (handler != null) handler(obj);
+            GameObjectAdded?.Invoke(obj);
         }
 
         private void OnGameObjectDestroyed(IGameObject obj)
         {
-            var handler = GameObjectDestroyed;
-            if (handler != null) handler(obj);
+            GameObjectDestroyed?.Invoke(obj);
         }
 
         private void OnMachinegunFire()
@@ -380,7 +364,7 @@ namespace LanderNet.Game
             if (_leftoverSeconds < 0)
                 _leftoverSeconds = 0;
 
-            _stage.Update(secondsPassed);
+            Stage.Update(secondsPassed);
 
             // TODO: Parallel processing of debris (IsBackgroundObject or something)
             foreach (var obj in GameObjects.ToArray())
@@ -405,6 +389,5 @@ namespace LanderNet.Game
         private double _previousGameLoopIterationSecond = double.MaxValue;
 
         private Spaceship _spaceship;
-        private IStage _stage = new SurvivalStage();
     }
 }

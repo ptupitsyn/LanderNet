@@ -3,6 +3,8 @@ using System.Windows;
 using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+// ReSharper disable NotAccessedField.Local
+// ReSharper disable UnusedMember.Global
 
 namespace TpsGraphNet
 {
@@ -11,9 +13,7 @@ namespace TpsGraphNet
         #region private static properties and indexers
 
         private static uint SizeofSpriteHeader
-        {
-            get { return (uint) (_sizeofSpriteHeader ?? (_sizeofSpriteHeader = TpsGraphWrapper.GetSizeOfSpriteHeader())); }
-        }
+            => (uint) (_sizeofSpriteHeader ?? (_sizeofSpriteHeader = TpsGraphWrapper.GetSpriteHeaderSize()));
 
         #endregion
 
@@ -32,7 +32,7 @@ namespace TpsGraphNet
             _sizeInBytes = _width*_height*4;
             _sizeInBytesForMmx = (_sizeInBytes/8)*8;
                 
-            _dataPtr = TpsGraphWrapper.InitSprite(width, height, 4);
+            _dataPtr = TpsGraphWrapper.CreateSprite(width, height, 4);
        }
 
         public Sprite(BitmapSource source) : this((uint) source.PixelWidth, (uint) source.PixelHeight)
@@ -114,7 +114,7 @@ namespace TpsGraphNet
                 throw new ArgumentException("rawData size mismatch; should be width*height");
 
             fixed (uint* srcPtr = &rawData[0])
-                TpsGraphWrapper.CopyMemory(_dataPtr + SizeofSpriteHeader, (uint) srcPtr, _sizeInBytes);
+                TpsGraphWrapper.CopyMemoryCrt(_dataPtr + SizeofSpriteHeader, (uint) srcPtr, _sizeInBytes);
         }
 
         public BitmapSource GetBitmapSource2()
@@ -167,7 +167,7 @@ namespace TpsGraphNet
         {
             //TpsGraphWrapper.MemCopyMmx(_dataPtr + SizeofSpriteHeader, targetPtr, _sizeInBytesForMmx);
             //TpsGraphWrapper.MemCopy(_dataPtr + SizeofSpriteHeader, targetPtr, _sizeInBytesForMmx);
-            TpsGraphWrapper.CopyMemory(targetPtr, _dataPtr + SizeofSpriteHeader, _sizeInBytes);
+            TpsGraphWrapper.CopyMemoryCrt(targetPtr, _dataPtr + SizeofSpriteHeader, _sizeInBytes);
 
             // http://stackoverflow.com/questions/14834108/speed-copy-bitmap-data-into-array-or-work-with-it-directly
             // http://stackoverflow.com/questions/13511661/create-bitmap-from-double-two-dimentional-array
@@ -184,8 +184,7 @@ namespace TpsGraphNet
         /// </returns>
         public override string ToString()
         {
-            return string.Format("{0}x{1}, {2} bytes", Width, Height,
-                _sizeInBytes + TpsGraphWrapper.GetSizeOfSpriteHeader());
+            return $"{Width}x{Height}, {_sizeInBytes + TpsGraphWrapper.GetSpriteHeaderSize()} bytes";
         }
 
         #endregion
@@ -199,20 +198,11 @@ namespace TpsGraphNet
 
         #region public properties and indexers
 
-        public uint Width
-        {
-            get { return _width; }
-        }
+        public uint Width => _width;
 
-        public uint Height
-        {
-            get { return _height; }
-        }
+        public uint Height => _height;
 
-        public uint RawDataPtr
-        {
-            get { return _dataPtr + TpsGraphWrapper.GetSizeOfSpriteHeader(); }
-        }
+        public uint RawDataPtr => _dataPtr + TpsGraphWrapper.GetSpriteHeaderSize();
 
         #endregion
 
@@ -231,7 +221,7 @@ namespace TpsGraphNet
                 _disposed = true;
                 if (_shouldFreeSprite)
                 {
-                    TpsGraphWrapper.FreeSprite(_dataPtr);
+                    TpsGraphWrapper.ReleaseSprite(_dataPtr);
                 }
             }
         }
@@ -242,7 +232,7 @@ namespace TpsGraphNet
 
         private void SetLayer()
         {
-            TpsGraphWrapper.SetLayer(_dataPtr);
+            TpsGraphWrapper.SetCurrentLayer(_dataPtr);
         }
 
         #endregion
@@ -250,7 +240,7 @@ namespace TpsGraphNet
         #region private fields
 
         private readonly uint _dataPtr;
-        private bool _shouldFreeSprite = true;
+        private readonly bool _shouldFreeSprite = true;
         private readonly uint _height;
         private readonly uint _width;
         private bool _disposed;

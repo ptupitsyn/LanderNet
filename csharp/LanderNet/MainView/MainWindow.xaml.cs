@@ -32,8 +32,8 @@ namespace LanderNet.UI.MainView
 
         private void SetRenderSize()
         {
-            _viewModel.RenderWidth = (uint) rootGrid.ActualWidth;
-            _viewModel.RenderHeight = (uint) rootGrid.ActualHeight;
+            _viewModel.RenderWidth = (uint) RootGrid.ActualWidth;
+            _viewModel.RenderHeight = (uint) RootGrid.ActualHeight;
         }
 
         #endregion

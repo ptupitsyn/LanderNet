@@ -45,9 +45,14 @@ namespace LanderNet.Game.Components
 
         public void UpdateOnTime(double seconds)
         {
+            var collided = Collided;
+
+            if (collided == null)
+                return;
+
             foreach (var gameObj in _parentGame.GameObjects.AsParallel().Where(DetectCollision).ToArray())
             {
-                OnCollided(gameObj);
+                collided.Invoke(this, gameObj);
             }
         }
 
@@ -66,12 +71,6 @@ namespace LanderNet.Game.Components
         #endregion
 
         #region private methods
-
-        private void OnCollided(IGameObject collidedWith)
-        {
-            var handler = Collided;
-            if (handler != null) handler(this, collidedWith);
-        }
 
         private bool DetectCollision(IGameObject obj)
         {

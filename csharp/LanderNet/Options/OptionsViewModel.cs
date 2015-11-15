@@ -13,7 +13,7 @@ namespace LanderNet.UI.Options
             set
             {
                 _asteroidsCount = value;
-                OnPropertyChanged("AsteroidsCount");
+                OnPropertyChanged(nameof(AsteroidsCount));
             }
         }
 
@@ -26,7 +26,7 @@ namespace LanderNet.UI.Options
             set
             {
                 _debrisLimit = value;
-                OnPropertyChanged("DebrisLimit");
+                OnPropertyChanged(nameof(DebrisLimit));
             }
         }
 
@@ -39,7 +39,7 @@ namespace LanderNet.UI.Options
             set
             {
                 _enableSound = value;
-                OnPropertyChanged("EnableSound");
+                OnPropertyChanged(nameof(EnableSound));
             }
         }
 

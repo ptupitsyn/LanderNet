@@ -36,8 +36,7 @@ namespace LanderNet.UI.Util
 
         public virtual void RaiseCanExecuteChanged()
         {
-            var handler = CanExecuteChanged;
-            if (handler != null) handler(this, EventArgs.Empty);
+            CanExecuteChanged?.Invoke(this, EventArgs.Empty);
         }
     }
 

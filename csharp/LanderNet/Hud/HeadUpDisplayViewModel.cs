@@ -15,7 +15,7 @@ namespace LanderNet.UI.Hud
             if (game == null) throw new ArgumentNullException();
             _game = game;
 
-            CompositionTarget.Rendering += CompositionTargetOnRendering;
+            CompositionTarget.Rendering += (sender, args) => CompositionTargetOnRendering();
         }
 
         public bool HasRockets { get; private set; }
@@ -29,7 +29,7 @@ namespace LanderNet.UI.Hud
         public int Score { get; private set; }
         public bool IsGameOver { get; private set; }
 
-        private void CompositionTargetOnRendering(object sender, EventArgs eventArgs)
+        private void CompositionTargetOnRendering()
         {
             // Do not redraw each frame
             _frameCount ++;

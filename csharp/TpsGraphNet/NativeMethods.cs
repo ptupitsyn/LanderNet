@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 
+// ReSharper disable InconsistentNaming
 namespace TpsGraphNet
 {
     public static class NativeMethods

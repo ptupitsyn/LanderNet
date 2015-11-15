@@ -16,7 +16,7 @@ namespace TpsGraphNet.Tests
             fixed (uint* srcPtr = &src[0])
             fixed (uint* dstPtr = &dst[0])
             {
-                TpsGraphWrapper.MemCopyMmx((uint) srcPtr, (uint) dstPtr, 16);
+                TpsGraphWrapper.CopyMemoryMmx((uint) srcPtr, (uint) dstPtr, 16);
             }
         }
 

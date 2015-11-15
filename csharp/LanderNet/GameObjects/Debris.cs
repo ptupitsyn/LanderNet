@@ -3,7 +3,6 @@ using LanderNet.Game.Components;
 using LanderNet.Game.GameObject;
 using LanderNet.UI.Components;
 using LanderNet.UI.Util;
-using TpsGraphNet;
 
 namespace LanderNet.UI.GameObjects
 {
