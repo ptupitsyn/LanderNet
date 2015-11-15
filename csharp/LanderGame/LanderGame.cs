@@ -151,10 +151,10 @@ namespace LanderNet.Game
             _spaceship = new Spaceship(OnMachinegunFire, OnRocketFire);
 
             _spaceship.AddComponent(new CollisionComponent(_spaceship, this, 20,
-                (component, gameObject) => OnAsteroidCollision(gameObject), typeof (Asteroid)));
+                OnAsteroidCollision, typeof (Asteroid)));
 
             _spaceship.AddComponent(new CollisionComponent(_spaceship, this, 20,
-                (component, gameObject) => OnCrateCollected(gameObject), typeof (Crate)));
+                OnCrateCollected, typeof (Crate)));
 
             AddGameObject(_spaceship);
         }
@@ -164,7 +164,7 @@ namespace LanderNet.Game
             var projectile = new T();
 
             projectile.AddComponent(new CollisionComponent(projectile, this, 15,
-                (component, gameObject) => OnProjectileHit(gameObject, projectile), typeof (Crate), typeof (Asteroid)));
+                gameObject => OnProjectileHit(gameObject, projectile), typeof (Crate), typeof (Asteroid)));
 
             AddGameObject(projectile);
 

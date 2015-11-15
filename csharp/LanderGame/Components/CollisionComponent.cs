@@ -32,7 +32,7 @@ namespace LanderNet.Game.Components
 
         #region public constructors
 
-        public CollisionComponent(IGameObject parentObject, LanderGame parentGame, double threshold, Action<CollisionComponent, IGameObject> onCollision, params Type[] collidesWith)
+        public CollisionComponent(IGameObject parentObject, LanderGame parentGame, double threshold, Action<IGameObject> onCollision, params Type[] collidesWith)
         {
             if (parentObject == null)
                 throw new ArgumentNullException(nameof(parentObject));
@@ -61,7 +61,7 @@ namespace LanderNet.Game.Components
         {
             foreach (var gameObj in _parentGame.GameObjects.AsParallel().Where(DetectCollision).ToArray())
             {
-                _onCollision(this, gameObj);
+                _onCollision(gameObj);
             }
         }
 
@@ -97,7 +97,7 @@ namespace LanderNet.Game.Components
         private readonly IGameObject _parentObject;
         private readonly LanderGame _parentGame;
         private readonly double _threshold;
-        private readonly Action<CollisionComponent, IGameObject> _onCollision;
+        private readonly Action<IGameObject> _onCollision;
 
         #endregion
     }
